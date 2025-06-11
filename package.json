@@ -1,0 +1,34 @@
+{
+  "name": "svsv",
+  "version": "0.0.1",
+  "description": "치지직 시청자 참여형 미니게임",
+  "keywords": [
+    "chzzk",
+    "치지직",
+    "시청자참여"
+  ],
+  "scripts": {
+    "dev": "vite --host",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com-sss:ShowSkillsSpark/svsv.git"
+  },
+  "author": {
+    "name": "실력발휘",
+    "email": "sparkamita90.yt@gmail.com",
+    "url": "https://github.com/ShowSkillsSpark"
+  },
+  "homepage": "https://github.com/ShowSkillsSpark/svsv",
+  "license": "ISC",
+  "dependencies": {
+    "chzzk-proxy": "file:../chzzk-proxy",
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
