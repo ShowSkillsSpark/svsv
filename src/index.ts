@@ -1,19 +1,17 @@
 import { AUTO, Game, Scale, Types } from "phaser";
-import store, { WIDTH, HEIGHT } from "./store";
-
-import { BootScene } from "./Scene/BootScene";
-import { LoginScene } from "./Scene/LoginScene";
-import { PreloadScene } from "./Scene/PreloadScene";
-import { SelectGameScene } from "./Scene/SelectGameScene";
-import { RecordScene } from "./Scene/Game/RecordScene";
+import { store } from "./Store/CommonStore";
+import { BootScene, LoginScene, PreloadScene, SelectGameScene } from "./Scene/Common";
+import { OthelloGameScene, OthelloResultScene, OthelloSettingScene } from "./Scene/Othello";
 
 const config: Types.Core.GameConfig = {
     type: AUTO,
     parent: 'game-container',
-    width: WIDTH,
-    height: HEIGHT,
+    width: store.WIDTH,
+    height: store.HEIGHT,
     transparent: true,
     pixelArt: true,
+    roundPixels: false,
+    antialias: false,
     scale: {
         mode: Scale.FIT,
         autoCenter: Scale.CENTER_BOTH,
@@ -25,7 +23,10 @@ const config: Types.Core.GameConfig = {
         LoginScene,
         PreloadScene,
         SelectGameScene,
-        RecordScene,
+
+        OthelloSettingScene,
+        OthelloGameScene,
+        OthelloResultScene,
     ],
 };
 
