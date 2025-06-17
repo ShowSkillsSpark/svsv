@@ -1,5 +1,5 @@
 import { GameObjects, Scene, Types } from "phaser";
-import store, { GameName, WIDTH, HEIGHT } from "../store";
+import store, { GameName, WIDTH, HEIGHT, DEBUG, Color } from "../store";
 
 import Reversi from "./Game/Reversi";
 
@@ -30,7 +30,7 @@ class GameButton extends GameObjects.Container {
         const game_name_height = height * 0.2;
         const logo_size = Math.min(width, logo_height);
 
-        this.cover = scene.add.rectangle(0, 0, width*1.1, height*1.1, 0x000000, 0.5);
+        this.cover = scene.add.rectangle(0, 0, width*1.1, height*1.1, Color.GREY_0, 0.5);
         const zone = scene.add.zone(0, 0, width, height).setOrigin(0.5);
 
         const logo_asset = `${game_name}Logo`;
@@ -38,7 +38,7 @@ class GameButton extends GameObjects.Container {
         this.logo.setScale(logo_size/this.logo.width).setY((logo_size - height)/2);
 
         this.logo_animation_key = `${logo_asset}-animation-${x}`;
-        this.animation_repeat_delay = 700;
+        this.animation_repeat_delay = 5000;
         scene.anims.create({
             key: this.logo_animation_key,
             frames: scene.anims.generateFrameNumbers(logo_asset, { start: 0, end: 15 }),
@@ -52,7 +52,7 @@ class GameButton extends GameObjects.Container {
         const game_name_text = this.scene.add.text(0, (logo_height)/2, game_name, {
             fontSize: game_name_height,
             fontFamily: 'Ramche',
-            color: '#ffffff',
+            color: Color.CODE_GREY_F.toString(),
             align: 'center',
         }).setOrigin(0.5).setPadding(game_name_height/20);
 
@@ -96,8 +96,14 @@ class GameButton extends GameObjects.Container {
         this.setButtonState(this.centered, pointerover);
         if (pointerover) {
             this.logo.anims.repeatDelay = 0;
+            let startFrame = this.logo.anims.currentFrame?.index ? this.logo.anims.currentFrame.index % this.logo.anims.getTotalFrames() : undefined;
+            this.logo.play({
+                key: this.logo_animation_key,
+                startFrame,
+                repeatDelay: 0,
+                delay: 0,
+            });
         } else {
-            this.logo.anims.resume();
             this.logo.anims.repeatDelay = this.animation_repeat_delay;
         }
     }
@@ -134,9 +140,18 @@ export class SelectGameScene extends Scene {
     }
 
     create() {
+        // 타이틀
+        const title_height = 64;
+        this.add.text(title_height/4, title_height/4, '스트리머 vs 시청자', {
+            fontSize: title_height,
+            fontFamily: 'Ramche',
+            color: Color.CODE_GREEN.toString(),
+            align: 'center',
+        }).setPadding(title_height/20);
+
+        // 게임 선택 버튼
         const button_width = WIDTH * 0.2;
         const button_height = HEIGHT * 0.5;
-
         // TODO: 랜덤, 후원 타이밍, 후원한 게임
         const select_game_buttons = [
             { name: GameName.Reversi, scene: Reversi },
@@ -207,5 +222,7 @@ export class SelectGameScene extends Scene {
         });
 
         select_game_buttons[curr_index].centered = true;
+
+        if (DEBUG) select_game_buttons[curr_index].onPointerUp();
     }
 }

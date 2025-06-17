@@ -1,5 +1,5 @@
 import { Scene } from "phaser";
-import store, { HEIGHT, WIDTH } from "../store";
+import store, { Color, HEIGHT, WIDTH } from "../store";
 
 export class LoginScene extends Scene {
     static key = 'LoginScene';
@@ -9,7 +9,7 @@ export class LoginScene extends Scene {
     }
 
     preload() {
-        this.load.spritesheet('button_header', 'assets/Common/button_header.png', { frameWidth: 32, frameHeight: 32 });
+        // this.load.spritesheet('button_header', 'assets/Common/button_header.png', { frameWidth: 32, frameHeight: 32 });
     }
 
     create() {
@@ -19,18 +19,18 @@ export class LoginScene extends Scene {
         const info_text = this.add.text(WIDTH/2, HEIGHT/2 - login_text_size, '', {
             fontSize: info_text_size,
             fontFamily: 'Ramche',
-            color: '#ffffff',
+            color: Color.CODE_GREY_F.toString(),
             align: 'center',
         }).setOrigin(0.5).setPadding(HEIGHT/200);
         const login_text = this.add.text(WIDTH/2, HEIGHT/2, '', {
             fontSize: login_text_size,
             fontFamily: 'Ramche',
-            color: '#aaaaaa',
+            color: Color.CODE_GREY_A.toString(),
             align: 'center',
         }).setOrigin(0.5).setPadding(HEIGHT/100);
 
         const arrow_size = login_text_size/32;
-        const button_header = this.add.sprite(WIDTH/3, HEIGHT/2, 'button_header').setOrigin(0.5).setScale(arrow_size).setTint(0xaaaaaaa);
+        const button_header = this.add.sprite(WIDTH/3, HEIGHT/2, 'button_header').setOrigin(0.5).setScale(arrow_size).setTint(Color.GREY_A);
         this.anims.create({
             key: 'header_animation',
             frames: this.anims.generateFrameNumbers('button_header', { start: 0, end: 11 }),
@@ -41,7 +41,7 @@ export class LoginScene extends Scene {
 
         const button_trailer = this.add.sprite(WIDTH*2/3, HEIGHT/2, 'button_header');
         button_trailer.flipX = true;
-        button_trailer.setOrigin(0.5).setScale(arrow_size).setTint(0xaaaaaaa);
+        button_trailer.setOrigin(0.5).setScale(arrow_size).setTint(Color.GREY_A);
         this.anims.create({
             key: 'trailer_animation',
             frames: this.anims.generateFrameNumbers('button_header', { start: 0, end: 11 }),
@@ -76,16 +76,14 @@ export class LoginScene extends Scene {
                 sessionStorage.setItem('redirect_uri',  redirect_uri);
                 window.open(interlock_url, '_self');
             }).on('pointerover', () => {
-                login_text.setColor('#ffffff');
-                button_header.setTint(0xffffff);
-                button_trailer.setTint(0xffffff);
+                login_text.setColor(Color.CODE_GREY_F);
+                button_header.setTint(Color.GREY_F);
+                button_trailer.setTint(Color.GREY_F);
             }).on('pointerout', () => {
-                login_text.setColor('#aaaaaa');
-                button_header.setTint(0xaaaaaa);
-                button_trailer.setTint(0xaaaaaa);
+                login_text.setColor(Color.CODE_GREY_A);
+                button_header.setTint(Color.GREY_A);
+                button_trailer.setTint(Color.GREY_A);
             });
         }
-
-        // this.scene.launch('ControlPanelScene');
     }
 }

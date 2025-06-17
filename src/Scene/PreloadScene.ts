@@ -1,5 +1,5 @@
 import { Scene } from "phaser";
-import store, { WIDTH, HEIGHT, GameName } from "../store";
+import store, { WIDTH, HEIGHT, GameName, DEBUG, Color } from "../store";
 
 import { SelectGameScene } from "./SelectGameScene";
 import { LoginScene } from "./LoginScene";
@@ -17,23 +17,32 @@ export class PreloadScene extends Scene {
 
     create() {
         // loading animation
-        const spin_coin = this.add.sprite(WIDTH/2, HEIGHT/3, 'Reversi').setOrigin(0.5).setScale(4);
+        const loading_sprite_height = HEIGHT/8;
+        const loading_sprite_left = this.add.sprite(WIDTH/4, HEIGHT/2, 'Reversi').setOrigin(0.5);
+        const loading_sprite_right = this.add.sprite(WIDTH*3/4, HEIGHT/2, 'Reversi').setOrigin(0.5);
+        loading_sprite_left.setScale(loading_sprite_height/loading_sprite_left.height);
+        loading_sprite_right.setScale(loading_sprite_height/loading_sprite_right.height);
+        loading_sprite_right.flipX = true;
+
         this.anims.create({
             key: 'spin',
             frames: this.anims.generateFrameNumbers('Reversi', { start: 0, end: 12 }),
             frameRate: 10,
             repeat: -1,
+            repeatDelay: 300,
         });
-        spin_coin.play('spin');
+        loading_sprite_left.play('spin');
+        loading_sprite_right.play('spin');
 
         const loading_text = this.add.text(WIDTH/2, HEIGHT/2, '연결 중...', {
-            fontSize: 128,
+            fontSize: HEIGHT/8,
             fontFamily: 'Ramche',
-            color: '#ffffff',
+            color: Color.CODE_GREY_F.toString(),
             align: 'center',
         }).setOrigin(0.5);
-
-        // this.scene.start(SelectGameScene.key); return; // TODO: DEBUG
+        
+        if (DEBUG) this.scene.start(SelectGameScene.key);
+        if (DEBUG) return;
 
         // connect chzzk
         const url = new URL(window.location.href);
