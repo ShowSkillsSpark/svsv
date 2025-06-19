@@ -8,7 +8,7 @@ export class BootScene extends Scene {
     }
 
     preload() {
-        this.load.font('Ramche', 'https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-1@1.1/Ramche.woff2');
+        this.load.font('DungGeunMo', 'https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff');
     }
     create() {
         this.scene.start(LoginScene.key);

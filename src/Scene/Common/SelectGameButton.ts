@@ -29,7 +29,7 @@ export class SelectGameButton extends GameObjects.Container {
         this.game_name = this.scene.add.text(0, logo_height/2, game_name, {
             ...store.style.font_style,
             fontSize: game_name_height,
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setPadding(store.style.font_padding);
         this.cover = this.scene.add.rectangle(0, 0, this.width*1.1, this.height*1.1, store.style.color.grey_0, 0.5);
 
         this.add([this.game_logo, this.game_name, this.cover]);

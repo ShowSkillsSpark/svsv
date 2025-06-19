@@ -1,4 +1,5 @@
 import { Scene } from "phaser";
+import { OthelloSettingScene } from "./OthelloSettingScene";
 
 export class OthelloResultScene extends Scene {
     static readonly key = 'OthelloResultScene';
@@ -7,6 +8,7 @@ export class OthelloResultScene extends Scene {
     }
 
     create() {
-        // this.scene.start('');
+        console.log('OthelloResultScene create');
+        this.scene.start(OthelloSettingScene.key);
     }
 }

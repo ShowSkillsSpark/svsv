@@ -14,15 +14,15 @@ export class SelectGameScene extends Scene {
         this.add.text(store.WIDTH/2, 0, '스트리머 vs 시청자', {
             ...store.style.font_style,
             color: store.style.color_code.green_f,
-        }).setOrigin(0.5, 0);
+        }).setOrigin(0.5, 0).setPadding(store.style.font_padding);
 
         // buttons
         const button_width = store.WIDTH * 0.2;
         const button_height = store.HEIGHT * 0.5;
         const select_game_buttons = [
             OthelloSelectGameButton,
-            OthelloSelectGameButton,
-            OthelloSelectGameButton,
+            // OthelloSelectGameButton,
+            // OthelloSelectGameButton,
         ].map((game_button: typeof SelectGameButton, index: integer) => {
             return new game_button(this, store.WIDTH*(1/2 + index*3/10), store.HEIGHT/2, button_width, button_height);
         });
@@ -89,6 +89,6 @@ export class SelectGameScene extends Scene {
 
         select_game_buttons[curr_index].centered = true;
 
-        // if (DEBUG) select_game_buttons[curr_index].onPointerUp();
+        if (store.DEBUG) select_game_buttons[curr_index].onpointerup(); // NOTE: select game directly
     }
 }

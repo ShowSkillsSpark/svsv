@@ -8,13 +8,10 @@ export class PreloadScene extends Scene {
     }
 
     preload() {
-        console.log('PreloadScene preload');
         this.load.spritesheet('Othello:assets', 'assets/Games/Othello/Othello.png', { frameWidth: 32, frameHeight: 32 });
-        console.log('PreloadScene preload done');
+        this.load.spritesheet('Common:button_header', 'assets/Common/button_header.png', { frameWidth: 32, frameHeight: 32 });
     }
     create() {
-        console.log('PreloadScene create');
         this.scene.start(SelectGameScene.key);
-        console.log('PreloadScene create done');
     }
 }

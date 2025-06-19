@@ -9,11 +9,11 @@ export class LoginScene extends Scene {
     }
 
     async create() {
-        if (store.DEBUG) { this.scene.start(PreloadScene.key); return; }
+        if (store.DEBUG) { this.scene.start(PreloadScene.key); return; } // NOTE: skip acquiring permission process
 
-        const proxy = store.getProxy();
-        const info_text = this.add.text(store.WIDTH/2, store.HEIGHT*1/2, '', store.style.font_style).setOrigin(0.5);
-        const button = this.add.text(store.WIDTH/2, store.HEIGHT*2/3, '', store.style.font_style).setOrigin(0.5).setTint(store.style.color.green_a);
+        const proxy = store.proxy;
+        const info_text = this.add.text(store.WIDTH/2, store.HEIGHT*1/2, '', store.style.font_style).setOrigin(0.5).setPadding(store.style.font_padding);
+        const button = this.add.text(store.WIDTH/2, store.HEIGHT*2/3, '', store.style.font_style).setOrigin(0.5).setPadding(store.style.font_padding).setTint(store.style.color.green_a);
         if (!proxy.access_token) {
             if (!proxy.code) {
                 info_text.setText(

@@ -1,6 +1,6 @@
 import { Scene } from "phaser";
 import { SelectGameButton } from "../Common/SelectGameButton";
-import { OthelloGameScene } from "./OthelloGameScene";
+import { OthelloSettingScene } from "./OthelloSettingScene";
 
 export class OthelloSelectGameButton extends SelectGameButton {
     scene: Scene;
@@ -22,6 +22,6 @@ export class OthelloSelectGameButton extends SelectGameButton {
     }
 
     onpointerup() {
-        this.scene.scene.start(OthelloGameScene.key);
+        this.scene.scene.start(OthelloSettingScene.key);
     }
 }
