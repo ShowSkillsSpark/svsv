@@ -71,15 +71,15 @@ class CommonStore extends Store {
         font_padding: 0,
     };
 
-    readonly users: { [channel_id: ChannelId]: UserInfo } = {};
-    addUser(channel_id: ChannelId, nickname: string) {
-        if (!(channel_id in this.users)) {
-            this.users[channel_id] = new UserInfo(channel_id, nickname);
-            this.emit(`CommonStore:user:addUser`, {channel_id});
-        } else {
-            this.users[channel_id].nickname = nickname;
-        }
-    }
+    // readonly users: { [channel_id: ChannelId]: UserInfo } = {};
+    // addUser(channel_id: ChannelId, nickname: string) {
+    //     if (!(channel_id in this.users)) {
+    //         this.users[channel_id] = new UserInfo(channel_id, nickname);
+    //         this.emit(`CommonStore:user:addUser`, {channel_id});
+    //     } else {
+    //         this.users[channel_id].nickname = nickname;
+    //     }
+    // }
 
     readonly proxy: ChzzkProxy;
 
@@ -103,32 +103,32 @@ class CommonStore extends Store {
             expires_in: sessionStorage.getItem('CommonStore:proxy:expires_in') || undefined,
             scope: sessionStorage.getItem('CommonStore:proxy:scope') || undefined,
         });
-        this.proxy.on(EventType.SYSTEM, (param: any) => {
-            if(param?.channelId) this.addUser(param.channelId, '방장');
-        });
-        this.proxy.on(EventType.CHAT, (param: any) => {
-            const channel_id = param.senderChannelId;
-            const profile = param.profile;
-            const nickname = profile.nickname;
-            const content = param.content;
-            const emojis = param.emojis;
-            const event_time = param.eventSentAt;
+        // this.proxy.on(EventType.SYSTEM, (param: any) => {
+        //     if(param?.channelId) this.addUser(param.channelId, '방장');
+        // });
+        // this.proxy.on(EventType.CHAT, (param: any) => {
+        //     const channel_id = param.senderChannelId;
+        //     const profile = param.profile;
+        //     const nickname = profile.nickname;
+        //     const content = param.content;
+        //     const emojis = param.emojis;
+        //     const event_time = param.eventSentAt;
 
-            this.addUser(channel_id, nickname);
-            this.emit(`CommonStore:message`, {channel_id, content, payment: 0});
-        });
-        this.proxy.on(EventType.DONATION, (param: any) => {
-            if (param.donationType !== 'CHAT') return;
-            const channel_id = param.donatorChannelId;
-            const nickname = param.donatorNickname;
-            const payment = param.payAmount;
-            const content = param.donationText;
-            const emojis = param.emojis;
-            const event_time = param.eventSentAt;
+        //     this.addUser(channel_id, nickname);
+        //     this.emit(`CommonStore:message`, {channel_id, content, payment: 0});
+        // });
+        // this.proxy.on(EventType.DONATION, (param: any) => {
+        //     if (param.donationType !== 'CHAT') return;
+        //     const channel_id = param.donatorChannelId;
+        //     const nickname = param.donatorNickname;
+        //     const payment = param.payAmount;
+        //     const content = param.donationText;
+        //     const emojis = param.emojis;
+        //     const event_time = param.eventSentAt;
 
-            this.addUser(channel_id, nickname);
-            this.emit(`CommonStore:message`, {channel_id, content, payment});
-        });
+        //     this.addUser(channel_id, nickname);
+        //     this.emit(`CommonStore:message`, {channel_id, content, payment});
+        // });
     }
 }
 

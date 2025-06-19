@@ -1,7 +1,7 @@
 import { AUTO, Game, Scale, Types } from "phaser";
 import { store } from "./Store/CommonStore";
 import { BootScene, LoginScene, PreloadScene, SelectGameScene } from "./Scene/Common";
-import { OthelloGameScene, OthelloResultScene, OthelloSettingScene } from "./Scene/Othello";
+import { OthelloGameScene, OthelloSettingScene } from "./Scene/Othello";
 
 const config: Types.Core.GameConfig = {
     type: AUTO,
@@ -26,7 +26,6 @@ const config: Types.Core.GameConfig = {
 
         OthelloSettingScene,
         OthelloGameScene,
-        OthelloResultScene,
     ],
 };
 

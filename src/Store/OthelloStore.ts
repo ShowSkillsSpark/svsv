@@ -85,10 +85,12 @@ export enum GameBoardTile {
     BLOCK = 2,
 }
 
-export enum GameBoardEvent {
+export enum OthelloGameEvent {
     SET = 'SET',
     PUT = 'PUT',
     PUT_FAIL = 'PUT_FAIL',
+    PASS = 'PASS',
+    END = 'END',
 }
 
 class Disk {
@@ -116,49 +118,68 @@ class GameBoard {
     tiles: GameBoardTile[][] = [];
     disks: Disk[][] = [];
 
+    counter: { [disk_color in DiskColor]: number };
+
     constructor(parent: OthelloStore) {
         this.parent = parent;
 
         this.width_index = parseInt(localStorage.getItem(`OthelloStore:game_board:width_index`) || '0');
         this.height_index = parseInt(localStorage.getItem(`OthelloStore:game_board:height_index`) || '0');
 
+        this.counter = {
+            [DiskColor.WHITE]: 0,
+            [DiskColor.BLACK]: 0,
+            [DiskColor.NONE]: 0,
+        }
+
         this.init();
     }
 
     init() {
+        this.counter = {
+            [DiskColor.WHITE]: 0,
+            [DiskColor.BLACK]: 0,
+            [DiskColor.NONE]: 0,
+        }
+
         for (let x = 0; x < GameBoardSize.MAX_SIZE + 2; x++) {
             this.tiles[x] = [];
             this.disks[x] = [];
             for (let y = 0; y < GameBoardSize.MAX_SIZE + 2; y++) {
-                let tile = GameBoardTile.WALL;
-                if (x > 0 && x <= this.width && y > 0 && y <= this.height) tile = GameBoardTile.EMPTY;
-                this.tiles[x][y] = tile;
+                if (x > 0 && x <= this.width && y > 0 && y <= this.height) {
+                    this.tiles[x][y] = GameBoardTile.EMPTY;
+                    this.counter[DiskColor.NONE] += 1;
+                } else {
+                    this.tiles[x][y] = GameBoardTile.WALL;
+                }
                 this.disks[x][y] = new Disk(x, y, DiskColor.NONE);
             }
         }
 
-        this.disks[this.width/2][this.height/2].disk_color = DiskColor.WHITE;
-        this.disks[this.width/2+1][this.height/2].disk_color = DiskColor.BLACK;
-        this.disks[this.width/2][this.height/2+1].disk_color = DiskColor.BLACK;
-        this.disks[this.width/2+1][this.height/2+1].disk_color = DiskColor.WHITE;
+        this.setDisk(this.width/2, this.height/2, DiskColor.WHITE);
+        this.setDisk(this.width/2+1, this.height/2, DiskColor.BLACK);
+        this.setDisk(this.width/2, this.height/2+1, DiskColor.BLACK);
+        this.setDisk(this.width/2+1, this.height/2+1, DiskColor.WHITE);
     }
 
-    setDisk(x: integer, y: integer, disk_color: DiskColor) {
+    setDisk(x: integer, y: integer, disk_color: DiskColor, event_flag = true) {
         const prev_disk_color = this.disks[x][y].disk_color;
         this.disks[x][y].disk_color = disk_color;
-        this.parent.emit(GameBoardEvent.SET, x, y, prev_disk_color, disk_color);
+        this.counter[disk_color] += 1;
+        this.counter[prev_disk_color] -= 1;
+        if (event_flag) this.parent.emit(OthelloGameEvent.SET, x, y, prev_disk_color, disk_color);
     }
     putDisk(x: integer, y: integer, disk_color: DiskColor) {
         const flip_disks = this.canPutDisk(x, y, disk_color);
         if (flip_disks.length === 0) {
-            this.parent.emit(GameBoardEvent.PUT_FAIL);
+            this.parent.emit(OthelloGameEvent.PUT_FAIL);
             return false;
         }
         this.setDisk(x, y, disk_color);
         flip_disks.forEach((disk) => {
             this.setDisk(disk.x, disk.y, disk_color);
         });
-        this.parent.emit(GameBoardEvent.PUT);
+        this.parent.emit(OthelloGameEvent.PUT);
         return true;
     }
     canPutDisk(x: integer, y: integer, disk_color: DiskColor) {
@@ -190,6 +211,17 @@ class GameBoard {
                 return [];
         }
     }
+    canPutDiskList(disk_color: DiskColor) {
+        const disk_set = new Set<Disk>();
+        for (let x = 1; x <= this.width; x++) {
+            for (let y = 1; y <= this.height; y++) {
+                for (const disk of this.canPutDisk(x, y, disk_color)) {
+                    disk_set.add(disk);
+                }
+            }
+        }
+        return [...disk_set];
+    }
 }
 
 class OthelloStore extends Store {
@@ -202,8 +234,6 @@ class OthelloStore extends Store {
     start_team_index: number;
     start_team_list = [StartTeam.TEAM1, StartTeam.TEAM2, StartTeam.RANDOM];
     get start_team() { return this.start_team_list[this.start_team_index]; }
-
-    curr_turn: TeamTag = TeamTag.TEAM1;
 
     game_board: GameBoard;
 

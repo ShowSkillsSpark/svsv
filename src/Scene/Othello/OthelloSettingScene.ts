@@ -260,6 +260,6 @@ export class OthelloSettingScene extends Scene {
 
         team1_panel.select = true;
         othello_store.game_board.init();
-        if (store.DEBUG) this.scene.start(OthelloGameScene.key);
+        // if (store.DEBUG) this.scene.start(OthelloGameScene.key);
     }
 }
