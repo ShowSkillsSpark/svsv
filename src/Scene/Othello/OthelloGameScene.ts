@@ -1,6 +1,7 @@
 import { GameObjects, Scene } from "phaser";
 import { DiskColor, OthelloGameEvent, GameBoardTile, othello_store, PutType, TeamTag, StartTeam } from "../../Store/OthelloStore";
 import { store } from "../../Store/CommonStore";
+import { OthelloSettingScene } from "./OthelloSettingScene";
 
 class TeamPanel extends GameObjects.Container {
     cover: GameObjects.Rectangle;
@@ -28,7 +29,7 @@ class TeamPanel extends GameObjects.Container {
         const team_disk_color = othello_store.teams[team_tag].disk_color
         const sprite_id = (team_disk_color === DiskColor.WHITE) ? 0 : 6;
         const team_disk = scene.add.sprite(width*1/3, disk_y_offset, 'Othello:assets', sprite_id).setScale(store.SCALE).setOrigin(0.5);
-        const count_text = scene.add.text(width*2/3, disk_y_offset, othello_store.game_board.counter[othello_store.teams[team_tag].disk_color].toString(), {
+        const count_text = scene.add.text(width*2/3, disk_y_offset, othello_store.game_board.counter[team_tag].toString(), {
             ...store.style.font_style,
         }).setOrigin(0.5);
         this.add([team_disk, count_text]);
@@ -36,9 +37,13 @@ class TeamPanel extends GameObjects.Container {
         this.cover = scene.add.rectangle(-stroke_size, -stroke_size, width+2*stroke_size, height+2*stroke_size, store.style.color.grey_0, 0.5).setOrigin(0);
         this.add(this.cover);
 
-        othello_store.on(OthelloGameEvent.SET, () => {
-            const disk_count = othello_store.game_board.counter[team_disk_color];
+        const on_set = () => {
+            const disk_count = othello_store.game_board.counter[team_tag];
             count_text.setText(disk_count.toString());
+        };
+        othello_store.on(OthelloGameEvent.SET, on_set);
+        scene.events.on('shutdown', () => {
+            othello_store.off(OthelloGameEvent.SET, on_set);
         });
     }
 
@@ -59,6 +64,16 @@ class TeamChat extends GameObjects.Container {
 
 export class OthelloGameScene extends Scene {
     static readonly key = 'OthelloGameScene';
+    static preload(scene: Scene) {
+        scene.anims.create({
+            key: `${DiskColor.WHITE}-${DiskColor.BLACK}`,
+            frames: scene.anims.generateFrameNumbers('Othello:assets', { start: 0, end: 6 }),
+        });
+        scene.anims.create({
+            key: `${DiskColor.BLACK}-${DiskColor.WHITE}`,
+            frames: scene.anims.generateFrameNumbers('Othello:assets', { start: 6, end: 12 }),
+        });
+    }
 
     tiles: GameObjects.Sprite[][] = [];
     disks: GameObjects.Sprite[][] = [];
@@ -110,7 +125,7 @@ export class OthelloGameScene extends Scene {
                         zone.visible = false;
                         this.tiles[x][y].setInteractive().on('pointerup', () => {
                             if (othello_store.teams[this.curr_turn].put === PutType.CLICK || store.DEBUG) {
-                                othello_store.game_board.putDisk(x, y, othello_store.teams[this.curr_turn].disk_color);
+                                othello_store.game_board.putDisk(x, y, this.curr_turn, othello_store.teams[this.curr_turn].disk_color);
                             }
                         }).on('pointerover', () => {
                             zone.visible = true;
@@ -155,15 +170,6 @@ export class OthelloGameScene extends Scene {
             }
         }
 
-        this.anims.create({
-            key: `${DiskColor.WHITE}-${DiskColor.BLACK}`,
-            frames: this.anims.generateFrameNumbers('Othello:assets', { start: 0, end: 6 }),
-        });
-        this.anims.create({
-            key: `${DiskColor.BLACK}-${DiskColor.WHITE}`,
-            frames: this.anims.generateFrameNumbers('Othello:assets', { start: 6, end: 12 }),
-        });
-
         // 팀 패널
         const team_panel_x_offset = tile_width / 2;
         const team_panel_y_offset = tile_y_offset + tile_height;
@@ -172,19 +178,27 @@ export class OthelloGameScene extends Scene {
         this.team_panels[TeamTag.TEAM1] = new TeamPanel(this, team_panel_x_offset, team_panel_y_offset, team_panel_width, team_panel_height, TeamTag.TEAM1);
         this.team_panels[TeamTag.TEAM2] = new TeamPanel(this, store.WIDTH - team_panel_width - team_panel_x_offset, team_panel_y_offset, team_panel_width, team_panel_height, TeamTag.TEAM2);
 
-        othello_store.on(OthelloGameEvent.SET, (x: integer, y: integer, prev_disk_color: DiskColor, disk_color: DiskColor) => {
-            if (prev_disk_color === DiskColor.NONE) {
+        const on_set = (x: integer, y: integer, prev_disk_color: DiskColor, disk_color: DiskColor) => {
+            if (prev_disk_color === DiskColor.NONE || prev_disk_color === disk_color) {
                 const sprite_id = (disk_color === DiskColor.WHITE) ? 0 : 6;
-                this.disks[x][y].setTexture('Othello:assets', sprite_id);
+                this.disks[x][y].setFrame(sprite_id).setTint(store.style.color.grey_f);
             } else {
                 this.disks[x][y].anims.play(`${prev_disk_color}-${disk_color}`);
             }
-        });
-        othello_store.on(OthelloGameEvent.PUT, () => {
+        };
+        const on_put = () => {
             this.nextTurn();
-        });
-        othello_store.on(OthelloGameEvent.PUT_FAIL, () => {
+        };
+        const on_put_fail = () => {
             console.log('failed to put')
+        }
+        othello_store.on(OthelloGameEvent.SET, on_set);
+        othello_store.on(OthelloGameEvent.PUT, on_put);
+        othello_store.on(OthelloGameEvent.PUT_FAIL, on_put_fail);
+        this.events.on('shutdown', () => {
+            othello_store.off(OthelloGameEvent.SET, on_set);
+            othello_store.off(OthelloGameEvent.PUT, on_put);
+            othello_store.off(OthelloGameEvent.PUT_FAIL, on_put_fail);
         });
 
         switch (othello_store.start_team) {
@@ -199,18 +213,28 @@ export class OthelloGameScene extends Scene {
                 this.setTurn(team_list[Math.round(Math.random())]);
                 break;
         }
+        // this.scene.start('SelectGameScene');
         // this.scene.start(OthelloResultScene.key);
     }
 
     setTurn(team_tag: TeamTag) {
         const disk_color = othello_store.teams[team_tag].disk_color;
-        const disk_list = othello_store.game_board.canPutDiskList(disk_color);
-        if (disk_list.length > 0) {
+        const disk_set = othello_store.game_board.canPutDiskSet(team_tag, disk_color);
+        if (disk_set.size > 0) {
             this.team_panels[this.curr_turn].onendturn();
             this.team_panels[team_tag].onstartturn();
             this.curr_turn = team_tag;
             this.prev_pass = false;
             // show available position
+            for (let x = 1; x <= othello_store.game_board.width; x++) {
+                for (let y = 1; y <= othello_store.game_board.height; y++) {
+                    if (disk_set.has(othello_store.game_board.disks[x][y])) {
+                        this.disks[x][y].setFrame(14).setTint(store.style.color.green_a);
+                    } else if (othello_store.game_board.disks[x][y].disk_color === DiskColor.NONE) {
+                        this.disks[x][y].setFrame(13);
+                    }
+                }
+            }
         } else {
             if (this.prev_pass) {
                 this.endGame();
@@ -222,7 +246,6 @@ export class OthelloGameScene extends Scene {
         // set way
         // count down
     }
-
     nextTurn() {
         const next_turn = this.curr_turn === TeamTag.TEAM1 ? TeamTag.TEAM2 : TeamTag.TEAM1;
         this.setTurn(next_turn);
@@ -232,5 +255,6 @@ export class OthelloGameScene extends Scene {
         console.log('game over');
         // show game result
         // go to setting button
+        this.scene.start(OthelloSettingScene.key);
     }
 }

@@ -21,6 +21,9 @@ export class SelectGameButton extends GameObjects.Container {
         const logo_size = Math.min(this.width, logo_height);
         this.game_logo = game_logo;
         this.game_logo.setScale(logo_size/this.game_logo.width).setY((logo_size - this.height)/2);
+        this.game_logo.anims.duration = this.animation_repeat_delay;
+        this.game_logo.anims.repeatDelay = this.animation_repeat_delay;
+        this.game_logo.anims.delay = Math.random() * this.animation_repeat_delay;
 
         this.game_logo_animation_key = game_logo_animation_key;
         this.game_logo.play(this.game_logo_animation_key);

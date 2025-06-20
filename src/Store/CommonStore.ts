@@ -1,18 +1,19 @@
 import { Events, Types } from "phaser";
 import { ChzzkProxy, EventType } from "chzzk-proxy";
 
-type ChannelId = string;
+export class Store extends Events.EventEmitter {}
 
-class UserInfo {
-    channel_id: ChannelId;
-    nickname: string;
-    constructor(channel_id: ChannelId, nickname: string) {
-        this.channel_id = channel_id;
-        this.nickname = nickname;
-    }
+export enum CommonStoreEvent {
+    CHAT = 'CHAT',
+    DONATION = 'DONATION',
 }
 
-export class Store extends Events.EventEmitter {}
+export interface CommonStoreEventParam {
+    channel_id: string,
+    nickname: string,
+    message: string,
+    pay?: number,
+}
 
 class CommonStore extends Store {
     readonly SCALE = 4;
@@ -71,16 +72,6 @@ class CommonStore extends Store {
         font_padding: 0,
     };
 
-    // readonly users: { [channel_id: ChannelId]: UserInfo } = {};
-    // addUser(channel_id: ChannelId, nickname: string) {
-    //     if (!(channel_id in this.users)) {
-    //         this.users[channel_id] = new UserInfo(channel_id, nickname);
-    //         this.emit(`CommonStore:user:addUser`, {channel_id});
-    //     } else {
-    //         this.users[channel_id].nickname = nickname;
-    //     }
-    // }
-
     readonly proxy: ChzzkProxy;
 
     constructor() {
@@ -103,32 +94,26 @@ class CommonStore extends Store {
             expires_in: sessionStorage.getItem('CommonStore:proxy:expires_in') || undefined,
             scope: sessionStorage.getItem('CommonStore:proxy:scope') || undefined,
         });
-        // this.proxy.on(EventType.SYSTEM, (param: any) => {
-        //     if(param?.channelId) this.addUser(param.channelId, '방장');
-        // });
-        // this.proxy.on(EventType.CHAT, (param: any) => {
-        //     const channel_id = param.senderChannelId;
-        //     const profile = param.profile;
-        //     const nickname = profile.nickname;
-        //     const content = param.content;
-        //     const emojis = param.emojis;
-        //     const event_time = param.eventSentAt;
-
-        //     this.addUser(channel_id, nickname);
-        //     this.emit(`CommonStore:message`, {channel_id, content, payment: 0});
-        // });
-        // this.proxy.on(EventType.DONATION, (param: any) => {
-        //     if (param.donationType !== 'CHAT') return;
-        //     const channel_id = param.donatorChannelId;
-        //     const nickname = param.donatorNickname;
-        //     const payment = param.payAmount;
-        //     const content = param.donationText;
-        //     const emojis = param.emojis;
-        //     const event_time = param.eventSentAt;
-
-        //     this.addUser(channel_id, nickname);
-        //     this.emit(`CommonStore:message`, {channel_id, content, payment});
-        // });
+        this.proxy.on(EventType.CHAT, (param: any) => {
+            const { channelId, senderChannelId, profile, content, emojis, messageTime } = param;
+            const { nickname, badges, verifiedMark } = profile;
+            const { key, value } = emojis;
+            this.emit(CommonStoreEvent.CHAT, {
+                channel_id: channelId,
+                nickname,
+                message: content,
+            } as CommonStoreEventParam);
+        });
+        this.proxy.on(EventType.DONATION, (param: any) => {
+            const { donationType, channelId, donatorChannelId, donatorNickname, payAmount, donationText, emojis } = param;
+            const { key, value } = emojis;
+            this.emit(CommonStoreEvent.DONATION, {
+                channel_id: donatorChannelId,
+                nickname: donatorNickname,
+                message: donationText,
+                pay: parseInt(payAmount),
+            } as CommonStoreEventParam);
+        });
     }
 }
 

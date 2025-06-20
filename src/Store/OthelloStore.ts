@@ -1,4 +1,4 @@
-import { Store } from "./CommonStore";
+import { store, Store } from "./CommonStore";
 
 export enum TeamTag {
     TEAM1 = 'TEAM1',
@@ -97,6 +97,7 @@ class Disk {
     x: integer;
     y: integer;
     disk_color: DiskColor;
+    team_tag: TeamTag | null = null;
     constructor(x: integer, y: integer, disk_color: DiskColor) {
         this.x = x;
         this.y = y;
@@ -118,7 +119,7 @@ class GameBoard {
     tiles: GameBoardTile[][] = [];
     disks: Disk[][] = [];
 
-    counter: { [disk_color in DiskColor]: number };
+    counter: { [team_tag in TeamTag]: number };
 
     constructor(parent: OthelloStore) {
         this.parent = parent;
@@ -127,19 +128,17 @@ class GameBoard {
         this.height_index = parseInt(localStorage.getItem(`OthelloStore:game_board:height_index`) || '0');
 
         this.counter = {
-            [DiskColor.WHITE]: 0,
-            [DiskColor.BLACK]: 0,
-            [DiskColor.NONE]: 0,
+            [TeamTag.TEAM1]: 0,
+            [TeamTag.TEAM2]: 0,
         }
 
-        this.init();
+        // this.init(DiskColor.WHITE, DiskColor.BLACK);
     }
 
-    init() {
+    init(team1_color: DiskColor, team2_color: DiskColor) {
         this.counter = {
-            [DiskColor.WHITE]: 0,
-            [DiskColor.BLACK]: 0,
-            [DiskColor.NONE]: 0,
+            [TeamTag.TEAM1]: 0,
+            [TeamTag.TEAM2]: 0,
         }
 
         for (let x = 0; x < GameBoardSize.MAX_SIZE + 2; x++) {
@@ -148,7 +147,6 @@ class GameBoard {
             for (let y = 0; y < GameBoardSize.MAX_SIZE + 2; y++) {
                 if (x > 0 && x <= this.width && y > 0 && y <= this.height) {
                     this.tiles[x][y] = GameBoardTile.EMPTY;
-                    this.counter[DiskColor.NONE] += 1;
                 } else {
                     this.tiles[x][y] = GameBoardTile.WALL;
                 }
@@ -156,76 +154,87 @@ class GameBoard {
             }
         }
 
-        this.setDisk(this.width/2, this.height/2, DiskColor.WHITE);
-        this.setDisk(this.width/2+1, this.height/2, DiskColor.BLACK);
-        this.setDisk(this.width/2, this.height/2+1, DiskColor.BLACK);
-        this.setDisk(this.width/2+1, this.height/2+1, DiskColor.WHITE);
+        this.setDisk(this.width/2, this.height/2, TeamTag.TEAM1, team1_color);
+        this.setDisk(this.width/2+1, this.height/2, TeamTag.TEAM2, team2_color);
+        this.setDisk(this.width/2, this.height/2+1, TeamTag.TEAM2, team2_color);
+        this.setDisk(this.width/2+1, this.height/2+1, TeamTag.TEAM1, team1_color);
     }
 
-    setDisk(x: integer, y: integer, disk_color: DiskColor, event_flag = true) {
-        const prev_disk_color = this.disks[x][y].disk_color;
+    setDisk(x: integer, y: integer, team_tag: TeamTag, disk_color: DiskColor, event_flag = true) {
+        const prev_disk = this.disks[x][y];
+        const prev_disk_team = prev_disk.team_tag;
+        const prev_disk_color = prev_disk.disk_color;
         this.disks[x][y].disk_color = disk_color;
-        this.counter[disk_color] += 1;
-        this.counter[prev_disk_color] -= 1;
+        this.disks[x][y].team_tag = team_tag;
+        this.counter[team_tag] += 1;
+        if (prev_disk_team) this.counter[prev_disk_team] -= 1;
         if (event_flag) this.parent.emit(OthelloGameEvent.SET, x, y, prev_disk_color, disk_color);
     }
-    putDisk(x: integer, y: integer, disk_color: DiskColor) {
-        const flip_disks = this.canPutDisk(x, y, disk_color);
+    putDisk(x: integer, y: integer, team_tag: TeamTag, disk_color: DiskColor) {
+        const flip_disks = this.canPutDisk(x, y, team_tag, disk_color);
         if (flip_disks.length === 0) {
             this.parent.emit(OthelloGameEvent.PUT_FAIL);
             return false;
         }
-        this.setDisk(x, y, disk_color);
+        this.setDisk(x, y, team_tag, disk_color);
         flip_disks.forEach((disk) => {
-            this.setDisk(disk.x, disk.y, disk_color);
+            this.setDisk(disk.x, disk.y, team_tag, disk_color);
         });
         this.parent.emit(OthelloGameEvent.PUT);
         return true;
     }
-    canPutDisk(x: integer, y: integer, disk_color: DiskColor) {
+    canPutDisk(x: integer, y: integer, team_tag: TeamTag, disk_color: DiskColor) {
         if (this.disks[x][y].disk_color !== DiskColor.NONE) return [];
-        const filp_u  = this.getFlippingDisk(x, y,  0, -1, disk_color, true); // filp up
-        const filp_ur = this.getFlippingDisk(x, y,  1, -1, disk_color, true); // filp up right
-        const filp_r  = this.getFlippingDisk(x, y,  1,  0, disk_color, true); // filp right
-        const filp_dr = this.getFlippingDisk(x, y,  1,  1, disk_color, true); // filp down right
-        const filp_d  = this.getFlippingDisk(x, y,  0,  1, disk_color, true); // filp down
-        const filp_dl = this.getFlippingDisk(x, y, -1,  1, disk_color, true); // filp down left
-        const filp_l  = this.getFlippingDisk(x, y, -1,  0, disk_color, true); // flip left
-        const filp_ul = this.getFlippingDisk(x, y, -1, -1, disk_color, true); // filp up left
+        const filp_u  = this.getFlippingDisk(x, y,  0, -1, team_tag, disk_color, true); // filp up
+        const filp_ur = this.getFlippingDisk(x, y,  1, -1, team_tag, disk_color, true); // filp up right
+        const filp_r  = this.getFlippingDisk(x, y,  1,  0, team_tag, disk_color, true); // filp right
+        const filp_dr = this.getFlippingDisk(x, y,  1,  1, team_tag, disk_color, true); // filp down right
+        const filp_d  = this.getFlippingDisk(x, y,  0,  1, team_tag, disk_color, true); // filp down
+        const filp_dl = this.getFlippingDisk(x, y, -1,  1, team_tag, disk_color, true); // filp down left
+        const filp_l  = this.getFlippingDisk(x, y, -1,  0, team_tag, disk_color, true); // flip left
+        const filp_ul = this.getFlippingDisk(x, y, -1, -1, team_tag, disk_color, true); // filp up left
         const flip_disks = [...filp_u, ...filp_ur, ...filp_r, ...filp_dr, ...filp_d, ...filp_dl, ...filp_l, ...filp_ul];
         return flip_disks;
     }
-    getFlippingDisk(x: integer, y:integer, dx: integer, dy: integer, target_disk_color: DiskColor, first_disk = false): Disk[] {
+    getFlippingDisk(x: integer, y:integer, dx: integer, dy: integer, team_tag: TeamTag, target_disk_color: DiskColor, first_disk = false): Disk[] {
         const next_tile = this.tiles[y+dy][x+dx];
         if (next_tile !== GameBoardTile.EMPTY) return [];
         const curr_disk = first_disk ? [] : [this.disks[x][y]];
         const next_disk = this.disks[x+dx][y+dy];
+        if (next_disk.disk_color === DiskColor.NONE) return [];
+        if (next_disk.team_tag === team_tag) return [...curr_disk];
+        else {
+            const disk_list = this.getFlippingDisk(x+dx, y+dy, dx, dy, team_tag, target_disk_color);
+            if (disk_list.length > 0) return [...disk_list, ...curr_disk];
+            return [];
+        }
         switch (next_disk.disk_color) {
             case DiskColor.NONE:
                 return [];
             case target_disk_color:
                 return [...curr_disk];
             default:
-                const disk_list = this.getFlippingDisk(x+dx, y+dy, dx, dy, target_disk_color);
+                const disk_list = this.getFlippingDisk(x+dx, y+dy, dx, dy, team_tag, target_disk_color);
                 if (disk_list.length > 0) return [...disk_list, ...curr_disk];
                 return [];
         }
     }
-    canPutDiskList(disk_color: DiskColor) {
+    canPutDiskSet(team_tag: TeamTag, disk_color: DiskColor) {
         const disk_set = new Set<Disk>();
         for (let x = 1; x <= this.width; x++) {
             for (let y = 1; y <= this.height; y++) {
-                for (const disk of this.canPutDisk(x, y, disk_color)) {
-                    disk_set.add(disk);
+                if (this.canPutDisk(x, y, team_tag, disk_color).length > 0) {
+                    disk_set.add(this.disks[x][y]);
                 }
             }
         }
-        return [...disk_set];
+        return disk_set;
     }
 }
 
 class OthelloStore extends Store {
     readonly teams: { [team_tag in TeamTag]: TeamConfig };
+    readonly members: { [channel_id: string]: MemberShip | null };
 
     default_membership_index: number;
     default_membership_list = [MemberShip.TEAM1, MemberShip.TEAM2, MemberShip.NONE];
@@ -253,6 +262,8 @@ class OthelloStore extends Store {
             put_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:put_index`) || '1'),
         });
 
+        this.members = {};
+
         this.default_membership_index = parseInt(localStorage.getItem(`OthelloStore:default_membership_index`) || '1');
 
         this.start_team_index = parseInt(localStorage.getItem(`OthelloStore:start_team_index`) || '2');
@@ -263,27 +274,31 @@ class OthelloStore extends Store {
     nextTeamTimeout(team_tag: TeamTag, diff: integer) {
         this.teams[team_tag].nextTimeout(diff);
         localStorage.setItem(`OthelloStore:teams:${team_tag}:timeout_index`, this.teams[team_tag].timeout_index.toString());
-        this.emit(`OthelloStore:teams:${team_tag}:timeout`, this.teams[team_tag].timeout);
+        this.emit('teams:timeout', team_tag, this.teams[team_tag].timeout);
     }
     nextTeamDisk(team_tag: TeamTag, diff: integer) {
         this.teams[team_tag].nextDisk(diff);
-        localStorage.setItem(`OthelloStore:teams:${team_tag}:disk_color_index`, this.teams[team_tag].disk_color_index.toString());
-        this.emit(`OthelloStore:teams:${team_tag}:disk`, this.teams[team_tag].disk_color);
+        localStorage.setItem(`OthelloStore:teams:${team_tag}:disk_index`, this.teams[team_tag].disk_color_index.toString());
+        this.emit('teams:disk', team_tag, this.teams[team_tag].disk_color);
     }
     nextTeamPut(team_tag: TeamTag, diff: integer) {
         this.teams[team_tag].nextPut(diff);
         localStorage.setItem(`OthelloStore:teams:${team_tag}:put_index`, this.teams[team_tag].put_index.toString());
-        this.emit(`OthelloStore:teams:${team_tag}:put`, this.teams[team_tag].put);
+        this.emit('teams:put', team_tag, this.teams[team_tag].put);
     }
     nextDefaultMembership(diff: integer) {
         this.default_membership_index = (this.default_membership_index + this.default_membership_list.length + diff) % this.default_membership_list.length;
         localStorage.setItem(`OthelloStore:default_membership_index`, this.default_membership_index.toString());
-        this.emit(`OthelloStore:default_membership`, this.default_membership);
+        this.emit('default_membership', this.default_membership);
     }
     nextStartTeam(diff: integer) {
         this.start_team_index = (this.start_team_index + this.start_team_list.length + diff) % this.start_team_list.length;
         localStorage.setItem(`OthelloStore:start_team_index`, this.start_team_index.toString());
-        this.emit(`OthelloStore:start_team`, this.start_team);
+        this.emit('start_team', this.start_team);
+    }
+    setMemberShip(channel_id: string,membership?: MemberShip) {
+        this.members[channel_id] = membership ?? null;
+        this.emit('members', channel_id, this.members[channel_id]);
     }
 }
 
