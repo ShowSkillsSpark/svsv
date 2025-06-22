@@ -1,4 +1,4 @@
-import { Events, Types } from "phaser";
+import { Events, Sound, Types } from "phaser";
 import { ChzzkProxy, EventType } from "chzzk-proxy";
 
 export class Store extends Events.EventEmitter {}
@@ -19,9 +19,41 @@ class CommonStore extends Store {
     readonly SCALE = 4;
     readonly WIDTH = 480 * this.SCALE;
     readonly HEIGHT = 270 * this.SCALE;
-    readonly DEBUG = true;
+    readonly DEBUG = false;
 
-    readonly url = 'http://localhost:5173';
+    readonly bgm_map: { [key: string]: Sound.NoAudioSound | Sound.HTML5AudioSound | Sound.WebAudioSound } = {};
+    private _bgm: Sound.NoAudioSound | Sound.HTML5AudioSound | Sound.WebAudioSound | undefined;
+    private _bgm_key: string | undefined;
+    set bgm(bgm: Sound.NoAudioSound | Sound.HTML5AudioSound | Sound.WebAudioSound | undefined) {
+        if (this._bgm_key && bgm?.key.startsWith(this._bgm_key)) return;
+        if(this._bgm) this._bgm.stop();
+        this._bgm = bgm;
+        this._bgm_key = bgm?.key;
+        this._bgm?.play();
+    }
+    onVolumeMasterChange: (() => void) | undefined;
+    private _volume_master: number = parseFloat(localStorage.getItem('CommonStore:volume:master') || '0.4');
+    private _volume_bgm: number = parseFloat(localStorage.getItem('CommonStore:volume:bgm') || '0.15');
+    private _volume_effect: number = parseFloat(localStorage.getItem('CommonStore:volume:effect') || '0.4');
+    get volume_master() { return this._volume_master; }
+    set volume_master(value: number) {
+        this._volume_master = value;
+        localStorage.setItem('CommonStore:volume:master', value.toString());
+        this.onVolumeMasterChange?.();
+    }
+    get volume_bgm() { return this._volume_bgm; }
+    set volume_bgm(value: number) {
+        this._volume_bgm = value;
+        localStorage.setItem('CommonStore:volume:bgm', value.toString());
+        this._bgm?.setVolume(value);
+    }
+    get volume_effect() { return this._volume_effect; }
+    set volume_effect(value: number) {
+        this._volume_effect = value;
+        localStorage.setItem('CommonStore:volume:effect', value.toString());
+    }
+
+    readonly url: string;
 
     readonly style = {
         color: {
@@ -45,6 +77,8 @@ class CommonStore extends Store {
             green_f: parseInt(localStorage.getItem('CommonStore:style:color:green_f') || '0x00ffa3'),
             purple_a: parseInt(localStorage.getItem('CommonStore:style:color:purple_a') || '0x6c00aa'),
             purple_f: parseInt(localStorage.getItem('CommonStore:style:color:purple_f') || '0xa300ff'),
+            pink_a: parseInt(localStorage.getItem('CommonStore:style:color:pink_a') || '0xaa006c'),
+            pink_f: parseInt(localStorage.getItem('CommonStore:style:color:pink_f') || '0xff00a3'),
         },
         color_code: {
             grey_0: localStorage.getItem('CommonStore:style:color_code:grey_0') || '#000000',
@@ -67,6 +101,8 @@ class CommonStore extends Store {
             green_f: localStorage.getItem('CommonStore:style:color_code:grey_f') || '#00ffa3',
             purple_a: localStorage.getItem('CommonStore:style:color_code:purple_a') || '#6c00aa',
             purple_f: localStorage.getItem('CommonStore:style:color_code:purple_f') || '#a300ff',
+            pink_a: localStorage.getItem('CommonStore:style:color:pink_a') || '#aa006c',
+            pink_f: localStorage.getItem('CommonStore:style:color:pink_f') || '#ff00a3',
         },
         font_style: {} as Types.GameObjects.Text.TextStyle,
         font_padding: 0,
@@ -84,8 +120,9 @@ class CommonStore extends Store {
             align: 'center',
         };
         this.style.font_padding = font_size * this.SCALE / 10;
+        this.url = this.DEBUG ? 'http://localhost:5173' : 'https://showskillsspark.github.io/svsv';
         this.proxy = new ChzzkProxy({
-            api_url: 'https://uohwcn08lb.execute-api.ap-northeast-2.amazonaws.com/default/chzzkProxy',
+            api_url: this.DEBUG ? 'https://pyrsgagtq5.execute-api.ap-northeast-2.amazonaws.com/default/chzzkProxyTest' : 'https://uohwcn08lb.execute-api.ap-northeast-2.amazonaws.com/default/chzzkProxy',
             code: sessionStorage.getItem('CommonStore:proxy:code') || (new URL(window.location.href)).searchParams.get('code') || undefined,
             state: sessionStorage.getItem('CommonStore:proxy:state') || (new URL(window.location.href)).searchParams.get('state') || undefined,
             access_token: sessionStorage.getItem('CommonStore:proxy:access_token') || undefined,
@@ -99,7 +136,7 @@ class CommonStore extends Store {
             const { nickname, badges, verifiedMark } = profile;
             const { key, value } = emojis;
             this.emit(CommonStoreEvent.CHAT, {
-                channel_id: channelId,
+                channel_id: senderChannelId,
                 nickname,
                 message: content,
             } as CommonStoreEventParam);

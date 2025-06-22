@@ -2,9 +2,10 @@ import { GameObjects, Scene } from "phaser";
 import { store } from "../../Store/CommonStore";
 
 export class SelectGameButton extends GameObjects.Container {
+    static animation_duration = 1000;
+
     game_logo!: GameObjects.Sprite;
     game_logo_animation_key!: string;
-    animation_repeat_delay = 1667;
 
     game_name!: GameObjects.Text;
 
@@ -21,9 +22,6 @@ export class SelectGameButton extends GameObjects.Container {
         const logo_size = Math.min(this.width, logo_height);
         this.game_logo = game_logo;
         this.game_logo.setScale(logo_size/this.game_logo.width).setY((logo_size - this.height)/2);
-        this.game_logo.anims.duration = this.animation_repeat_delay;
-        this.game_logo.anims.repeatDelay = this.animation_repeat_delay;
-        this.game_logo.anims.delay = Math.random() * this.animation_repeat_delay;
 
         this.game_logo_animation_key = game_logo_animation_key;
         this.game_logo.play(this.game_logo_animation_key);
@@ -56,11 +54,11 @@ export class SelectGameButton extends GameObjects.Container {
             this.game_logo.play({
                 key: this.game_logo_animation_key,
                 startFrame,
-                repeatDelay: this.animation_repeat_delay/10,
+                repeatDelay: SelectGameButton.animation_duration/10,
                 delay: 0,
             });
         } else {
-            this.game_logo.anims.repeatDelay = this.animation_repeat_delay;
+            this.game_logo.anims.repeatDelay = SelectGameButton.animation_duration;
             this.game_logo.anims.resume();
         }
         this.game_logo.anims.reverse();

@@ -2,6 +2,7 @@ import { Scene } from "phaser";
 import { store } from "../../Store/CommonStore";
 import { OthelloSelectGameButton } from "../Othello/OthelloSelectGameButton";
 import { SelectGameButton } from "./SelectGameButton";
+import { version } from "../../../package.json"
 
 export class SelectGameScene extends Scene {
     static readonly key = 'SelectGameScene';
@@ -10,19 +11,19 @@ export class SelectGameScene extends Scene {
     }
 
     create() {
-        // title
-        this.add.text(store.WIDTH/2, 0, '스트리머 vs 시청자', {
+        // 타이틀
+        const title_y_offset = store.HEIGHT/20;
+        this.add.text(store.WIDTH/2, title_y_offset, '스트리머 vs 시청자', {
             ...store.style.font_style,
             color: store.style.color_code.green_f,
-        }).setOrigin(0.5, 0).setPadding(store.style.font_padding);
+        }).setOrigin(0.5, 0);
 
         // buttons
         const button_width = store.WIDTH * 0.2;
         const button_height = store.HEIGHT * 0.5;
         const select_game_buttons = [
+            // CreditButton
             OthelloSelectGameButton,
-            // OthelloSelectGameButton,
-            // OthelloSelectGameButton,
         ].map((game_button: typeof SelectGameButton, index: integer) => {
             return new game_button(this, store.WIDTH*(1/2 + index*3/10), store.HEIGHT/2, button_width, button_height);
         });
@@ -34,6 +35,11 @@ export class SelectGameScene extends Scene {
         const left_zone = this.add.zone(store.WIDTH/2 - zone_horizontal_gap, store.HEIGHT/2, zone_width, zone_height).setOrigin(0.5);
         const center_zone = this.add.zone(store.WIDTH/2, store.HEIGHT/2, zone_width, zone_height).setOrigin(0.5);
         const right_zone = this.add.zone(store.WIDTH/2 + zone_horizontal_gap, store.HEIGHT/2, zone_width, zone_height).setOrigin(0.5);
+
+        // version
+        const version_text = this.add.text(0, store.HEIGHT, version, {
+            ...store.style.font_style,
+        }).setOrigin(0, 1);
         
         const onpointerover = (index: integer, center: boolean, focus: boolean) => {
             if (index < 0 || index >= select_game_buttons.length) return;
@@ -58,6 +64,7 @@ export class SelectGameScene extends Scene {
             curr_index = Math.max(curr_index - 1, 0);
         }).on('pointerdown', () => {
         }).on('pointerover', () => {
+            if (curr_index > 0) this.sound.play('Common:sound:cancel', { volume: store.volume_effect });
             onpointerover(curr_index - 1, false, true);
         }).on('pointerout', () => {
             onpointerout(curr_index - 1, false, false);
@@ -67,6 +74,7 @@ export class SelectGameScene extends Scene {
         }).on('pointerdown', () => {
             select_game_buttons[curr_index].onpointerdown();
         }).on('pointerover', () => {
+            this.sound.play('Common:sound:cancel', { volume: store.volume_effect });
             onpointerover(curr_index, true, true);
         }).on('pointerout', () => {
             onpointerout(curr_index, true, false);
@@ -82,6 +90,7 @@ export class SelectGameScene extends Scene {
             curr_index = Math.min(curr_index + 1, select_game_buttons.length - 1);
         }).on('pointerdown', () => {
         }).on('pointerover', () => {
+            if (curr_index < select_game_buttons.length - 1) this.sound.play('Common:sound:cancel', { volume: store.volume_effect });
             onpointerover(curr_index + 1, false, true);
         }).on('pointerout', () => {
             onpointerout(curr_index + 1, false, false);
@@ -89,6 +98,6 @@ export class SelectGameScene extends Scene {
 
         select_game_buttons[curr_index].centered = true;
 
-        if (store.DEBUG) select_game_buttons[curr_index].onpointerup(); // NOTE: select game directly
+        // if (store.DEBUG) select_game_buttons[curr_index].onpointerup(); // NOTE: select game directly
     }
 }

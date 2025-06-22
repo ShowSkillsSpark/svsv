@@ -1,6 +1,7 @@
 import { Scene } from "phaser";
 import { SelectGameButton } from "../Common/SelectGameButton";
 import { OthelloSettingScene } from "./OthelloSettingScene";
+import { store } from "../../Store/CommonStore";
 
 export class OthelloSelectGameButton extends SelectGameButton {
     static game_logo_animation_key = 'OthelloSelectGameButton:animation';
@@ -8,10 +9,10 @@ export class OthelloSelectGameButton extends SelectGameButton {
         scene.anims.create({
             key: OthelloSelectGameButton.game_logo_animation_key,
             frames: scene.anims.generateFrameNumbers('Othello:assets', {start: 32, end: 44}),
-            duration: 1000,
+            duration: this.animation_duration,
             repeat: -1,
-            repeatDelay: 0,
-            delay: 0,
+            repeatDelay: this.animation_duration*2,
+            delay: this.animation_duration*Math.random()*2,
         });
     }
 
@@ -25,6 +26,7 @@ export class OthelloSelectGameButton extends SelectGameButton {
     }
 
     onpointerup() {
+        this.scene.sound.play('Common:sound:pause', { volume: store.volume_effect });
         this.scene.scene.start(OthelloSettingScene.key);
     }
 }

@@ -1,4 +1,4 @@
-import { store, Store } from "./CommonStore";
+import { Store } from "./CommonStore";
 
 export enum TeamTag {
     TEAM1 = 'TEAM1',
@@ -6,13 +6,14 @@ export enum TeamTag {
 }
 
 export enum Timeout {
-    SEC_10 = '10 초',
-    SEC_20 = '20 초',
-    SEC_30 = '30 초',
-    SEC_40 = '40 초',
-    SEC_50 = '50 초',
-    SEC_60 = '60 초',
-    SEC_300 = '300 초',
+    INFINITE = -1,
+    SEC_10 = 10,
+    SEC_20 = 20,
+    SEC_30 = 30,
+    SEC_40 = 40,
+    SEC_50 = 50,
+    SEC_60 = 60,
+    SEC_300 = 300,
 }
 
 export enum DiskColor {
@@ -31,6 +32,7 @@ export enum MemberShip {
     TEAM1 = '1 팀',
     TEAM2 = '2 팀',
     NONE = '불참',
+    DEFAULT = '기본값',
 }
 
 export enum StartTeam {
@@ -49,7 +51,7 @@ interface TeamConfigParam {
 class TeamConfig {
     name: string;
 
-    timeout_list = [Timeout.SEC_10, Timeout.SEC_20, Timeout.SEC_30, Timeout.SEC_40, Timeout.SEC_50, Timeout.SEC_60, Timeout.SEC_300];
+    timeout_list = [Timeout.INFINITE, Timeout.SEC_10, Timeout.SEC_20, Timeout.SEC_30, Timeout.SEC_40, Timeout.SEC_50, Timeout.SEC_60, Timeout.SEC_300];
     timeout_index: integer;
     get timeout() { return this.timeout_list[this.timeout_index]; }
 
@@ -93,7 +95,7 @@ export enum OthelloGameEvent {
     END = 'END',
 }
 
-class Disk {
+export class Disk {
     x: integer;
     y: integer;
     disk_color: DiskColor;
@@ -180,10 +182,11 @@ class GameBoard {
         flip_disks.forEach((disk) => {
             this.setDisk(disk.x, disk.y, team_tag, disk_color);
         });
-        this.parent.emit(OthelloGameEvent.PUT);
+        this.parent.emit(OthelloGameEvent.PUT, x, y);
         return true;
     }
     canPutDisk(x: integer, y: integer, team_tag: TeamTag, disk_color: DiskColor) {
+        if (x < 1 || x > this.width || y < 1 || y > this.height) return [];
         if (this.disks[x][y].disk_color !== DiskColor.NONE) return [];
         const filp_u  = this.getFlippingDisk(x, y,  0, -1, team_tag, disk_color, true); // filp up
         const filp_ur = this.getFlippingDisk(x, y,  1, -1, team_tag, disk_color, true); // filp up right
@@ -208,16 +211,6 @@ class GameBoard {
             if (disk_list.length > 0) return [...disk_list, ...curr_disk];
             return [];
         }
-        switch (next_disk.disk_color) {
-            case DiskColor.NONE:
-                return [];
-            case target_disk_color:
-                return [...curr_disk];
-            default:
-                const disk_list = this.getFlippingDisk(x+dx, y+dy, dx, dy, team_tag, target_disk_color);
-                if (disk_list.length > 0) return [...disk_list, ...curr_disk];
-                return [];
-        }
     }
     canPutDiskSet(team_tag: TeamTag, disk_color: DiskColor) {
         const disk_set = new Set<Disk>();
@@ -234,7 +227,8 @@ class GameBoard {
 
 class OthelloStore extends Store {
     readonly teams: { [team_tag in TeamTag]: TeamConfig };
-    readonly members: { [channel_id: string]: MemberShip | null };
+    private _members: { [channel_id: string]: MemberShip };
+    get members() { return this._members; }
 
     default_membership_index: number;
     default_membership_list = [MemberShip.TEAM1, MemberShip.TEAM2, MemberShip.NONE];
@@ -251,18 +245,20 @@ class OthelloStore extends Store {
         this.teams = {} as { [team_tag in TeamTag]: TeamConfig };
         this.teams[TeamTag.TEAM1] = new TeamConfig({
             name: localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM1}:name`) || MemberShip.TEAM1,
-            timeout_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM1}:timeout_index`) || '6'),
+            timeout_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM1}:timeout_index`) || '0'),
+            // timeout_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM1}:timeout_index`) || '0'),
             disk_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM1}:disk_index`) || '0'),
             put_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM1}:put_index`) || '0'),
         });
         this.teams[TeamTag.TEAM2] = new TeamConfig({
             name: localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:name`) || MemberShip.TEAM2,
-            timeout_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:timeout_index`) || '1'),
+            timeout_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:timeout_index`) || '2'),
+            // timeout_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:timeout_index`) || '0'),
             disk_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:disk_index`) || '1'),
             put_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:put_index`) || '1'),
         });
 
-        this.members = {};
+        this._members = {};
 
         this.default_membership_index = parseInt(localStorage.getItem(`OthelloStore:default_membership_index`) || '1');
 
@@ -296,9 +292,12 @@ class OthelloStore extends Store {
         localStorage.setItem(`OthelloStore:start_team_index`, this.start_team_index.toString());
         this.emit('start_team', this.start_team);
     }
-    setMemberShip(channel_id: string,membership?: MemberShip) {
-        this.members[channel_id] = membership ?? null;
-        this.emit('members', channel_id, this.members[channel_id]);
+    setMemberShip(channel_id: string, membership?: MemberShip) {
+        this._members[channel_id] = membership ?? this._members[channel_id] ?? MemberShip.DEFAULT;
+        this.emit('members', channel_id, this._members[channel_id]);
+    }
+    clearMemberShip() {
+        this._members = {};
     }
 }
 
