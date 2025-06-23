@@ -42,20 +42,20 @@ class CommonStore extends Store {
     set volume_master(value: number) {
         this._volume_master = Math.max(0, Math.min(1, Number(value.toFixed(1))));
         localStorage.setItem('svsv:volume:master', this._volume_master.toString());
-        this.emit(CommonStoreEvent.VOLUME_MASTER, value);
+        this.emit(CommonStoreEvent.VOLUME_MASTER, this._volume_master);
     }
     get volume_bgm() { return this._volume_bgm; }
     set volume_bgm(value: integer) {
         this._volume_bgm = Math.max(0, Math.min(1, Number(value.toFixed(1))));
         localStorage.setItem('svsv:volume:bgm', value.toString());
         this._bgm?.setVolume(value);
-        this.emit(CommonStoreEvent.VOLUME_BGM, value);
+        this.emit(CommonStoreEvent.VOLUME_BGM, this._volume_bgm);
     }
     get volume_effect() { return this._volume_effect; }
     set volume_effect(value: integer) {
         this._volume_effect = Math.max(0, Math.min(1, Number(value.toFixed(1))));
         localStorage.setItem('svsv:volume:effect', value.toString());
-        this.emit(CommonStoreEvent.VOLUME_EFFECT, value);
+        this.emit(CommonStoreEvent.VOLUME_EFFECT, this._volume_effect);
     }
 
     readonly url: string;

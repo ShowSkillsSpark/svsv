@@ -15,18 +15,19 @@ export class LoginScene extends Scene {
         this.load.audio('bgm:login:intro', 'assets/Common/xDeviruchi - 8-bit Fantasy  & Adventure Music (2021)/Separated Files/Take some rest and eat some food!/xDeviruchi - Take some rest and eat some food! (Intro).wav');
         this.load.audio('bgm:login', 'assets/Common/xDeviruchi - 8-bit Fantasy  & Adventure Music (2021)/Separated Files/Take some rest and eat some food!/xDeviruchi - Take some rest and eat some food! (Loop).wav');
     }
+
     async create() {
+        // version
+        const version_text = this.add.text(0, store.HEIGHT, version, {
+            ...store.style.font_style,
+        }).setOrigin(0, 1);
+
         const bgm = this.sound.add('bgm:login:intro', { volume: store.volume_bgm });
         bgm.on('complete', () => {
             store.bgm = this.sound.add('bgm:login', { loop: true, volume: store.volume_bgm });
         });
         store.bgm_map['bgm:login:intro'] = bgm;
         store.bgm = store.bgm_map['bgm:login:intro'];
-
-        // version
-        const version_text = this.add.text(0, store.HEIGHT, version, {
-            ...store.style.font_style,
-        }).setOrigin(0, 1);
 
         // if (store.DEBUG) { this.scene.start(PreloadScene.key); return; } // NOTE: skip acquiring permission process
 

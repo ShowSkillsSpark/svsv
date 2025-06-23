@@ -11,6 +11,18 @@ export class PreloadScene extends Scene {
         super(PreloadScene.key);
     }
 
+    init() {
+        // version
+        const version_text = this.add.text(0, store.HEIGHT, version, {
+            ...store.style.font_style,
+        }).setOrigin(0, 1);
+
+        // loading text
+        this.add.text(store.WIDTH/2, store.HEIGHT/2, 'Loading...', {
+            ...store.style.font_style,
+        }).setOrigin(0.5);
+    }
+
     preload() {
         this.load.spritesheet('Othello:assets', 'assets/Games/Othello/Othello.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('Common:button_header', 'assets/Common/button_header.png', { frameWidth: 32, frameHeight: 32 });
@@ -29,10 +41,6 @@ export class PreloadScene extends Scene {
         this.load.audio('bgm:defeat2:intro', 'xDeviruchi - 16 bit Fantasy & Adventure (2025)/10 - Lost Shrine.mp3');
     }
     create() {
-        // version
-        const version_text = this.add.text(0, store.HEIGHT, version, {
-            ...store.style.font_style,
-        }).setOrigin(0, 1);
 
         OthelloSelectGameButton.preload(this);
         OthelloGameScene.preload(this);

@@ -2,6 +2,7 @@ import { Scene } from "phaser";
 import { LoginScene } from "./LoginScene";
 import { CommonStoreEvent, store } from "../../Store/CommonStore";
 import { SidebarScene } from "./SidebarScene";
+import { version } from "../../../package.json"
 
 export class BootScene extends Scene {
     static readonly key = 'BootScene';
@@ -24,6 +25,11 @@ export class BootScene extends Scene {
         this.load.audio('Common:sound:equip', 'SoupTonic UI1 SFX Pack 1 - mp3/SFX_UI_Equip.mp3');
     }
     create() {
+        // version
+        const version_text = this.add.text(0, store.HEIGHT, version, {
+            ...store.style.font_style,
+        }).setOrigin(0, 1);
+
         // this.input.setDefaultCursor('url(https://cdn.phaserfiles.com/v385/assets/input/cursors/pen.cur), pointer');
         // this.input.setDefaultCursor('none');
         this.sound.setVolume(store.volume_master);

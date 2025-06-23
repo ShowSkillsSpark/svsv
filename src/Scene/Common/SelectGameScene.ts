@@ -11,6 +11,11 @@ export class SelectGameScene extends Scene {
     }
 
     create() {
+        // version
+        const version_text = this.add.text(0, store.HEIGHT, version, {
+            ...store.style.font_style,
+        }).setOrigin(0, 1);
+
         // 타이틀
         const title_y_offset = store.HEIGHT/20;
         this.add.text(store.WIDTH/2, title_y_offset, '스트리머 vs 시청자', {
@@ -35,11 +40,6 @@ export class SelectGameScene extends Scene {
         const left_zone = this.add.zone(store.WIDTH/2 - zone_horizontal_gap, store.HEIGHT/2, zone_width, zone_height).setOrigin(0.5);
         const center_zone = this.add.zone(store.WIDTH/2, store.HEIGHT/2, zone_width, zone_height).setOrigin(0.5);
         const right_zone = this.add.zone(store.WIDTH/2 + zone_horizontal_gap, store.HEIGHT/2, zone_width, zone_height).setOrigin(0.5);
-
-        // version
-        const version_text = this.add.text(0, store.HEIGHT, version, {
-            ...store.style.font_style,
-        }).setOrigin(0, 1);
         
         const onpointerover = (index: integer, center: boolean, focus: boolean) => {
             if (index < 0 || index >= select_game_buttons.length) return;

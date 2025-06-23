@@ -348,6 +348,18 @@ class SettingPanel extends GameObjects.Container {
         this.add(page_param);
         return page_param
     }
+    addText({height = 1, value}: OptionParam) {
+        const { option_x_offset, option_y_offset, option_width, option_height } = this.getOptionPosition(height);
+        this.option_count += height;
+        const text = this.scene.add.text(option_x_offset, option_y_offset, value ?? '[ERROR] empty text', {
+            ...store.style.font_style,
+            color: store.style.color_code.grey_0,
+            wordWrap: { width: option_width },
+            align: 'left',
+        }).setOrigin(0, 0);
+        this.add(text);
+        return text
+    }
 
     private _selected = false;
     set select(value: boolean) {
@@ -373,7 +385,7 @@ class TeamSettingPanel extends SettingPanel {
     constructor(scene: Scene, team_tag: TeamTag, index: number, tag_title: string) {
         super(scene, tag_title, index);
 
-        const name_value_text = this.addTextOption({label: '팀명', value: othello_store.teams[team_tag].name});
+        // const name_value_text = this.addTextOption({label: '팀명', value: othello_store.teams[team_tag].name});
 
         const remain_time = (othello_store.teams[team_tag].timeout < 0) ? '무제한' : `${othello_store.teams[team_tag].timeout} 초`;
         const timeout_value_text = this.addListOption({
@@ -395,6 +407,42 @@ class TeamSettingPanel extends SettingPanel {
             value: othello_store.teams[team_tag].put,
             on_left_button_click: () => { othello_store.nextTeamPut(team_tag, -1); },
             on_right_button_click: () => { othello_store.nextTeamPut(team_tag, +1); },
+        });
+
+        const make_help_text = () => {
+            let help_text = '※ ';
+            switch (othello_store.teams[team_tag].timeout) {
+                case Timeout.INFINITE:
+                    help_text += '시간 제한 없이 ';
+                    break;
+                default:
+                    help_text += `${othello_store.teams[team_tag].timeout} 초가 지나면 `;
+                    break;
+            }
+            help_text += `${othello_store.teams[team_tag].disk_color} 말을 `;
+            switch (othello_store.teams[team_tag].put) {
+                case PutType.CLICK:
+                    help_text += '클릭한 곳에 ';
+                    break;
+                case PutType.MOST:
+                    help_text += '가장 많은 표를 받은 곳에 ';
+                    break;
+                case PutType.PROPORTIONAL:
+                    help_text += '투표 수에 비례하여 확률적으로 ';
+                    break;
+            }
+            help_text += '놓습니다.';
+            return help_text;
+        }
+        const help_text = this.addText({ value: make_help_text() });
+        othello_store.on('teams:timeout', () => {
+            help_text.setText(make_help_text());
+        });
+        othello_store.on('teams:disk', () => {
+            help_text.setText(make_help_text());
+        });
+        othello_store.on('teams:put', () => {
+            help_text.setText(make_help_text());
         });
 
         const on_timeout = (tt: TeamTag, timeout: Timeout) => {
@@ -461,6 +509,17 @@ class GameSettingPanel extends SettingPanel {
             on_right_button_click: () => othello_store.nextStartTeam(+1),
         });
 
+        const make_help_text = () => {
+            switch (othello_store.start_team) {
+                case StartTeam.TEAM1:
+                case StartTeam.TEAM2:
+                    return `※ ${othello_store.start_team}부터 시작합니다.`;
+                case StartTeam.RANDOM:
+                    return '※ 랜덤으로 시작 팀을 정합니다.';
+            }
+        }
+        const help_text = this.addText({ value: make_help_text() });
+
         const start_button = this.scene.add.text(this.panel_x_offset + this.panel_width/2, this.panel_y_offset + this.panel_height/2, '드가자!', {
             ...store.style.font_style,
             fontSize: store.style.font_style.fontSize as number * 2,
@@ -477,6 +536,7 @@ class GameSettingPanel extends SettingPanel {
 
         const on_start_team = (start_team: StartTeam) => {
             start_team_value_text.setValueText(start_team);
+            help_text.setText(make_help_text());
         };
         othello_store.on('start_team', on_start_team);
 
