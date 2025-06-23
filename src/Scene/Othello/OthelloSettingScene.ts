@@ -510,17 +510,20 @@ class GameSettingPanel extends SettingPanel {
         });
 
         const make_help_text = () => {
+            let help_text = '';
             switch (othello_store.start_team) {
                 case StartTeam.TEAM1:
                 case StartTeam.TEAM2:
-                    return `※ ${othello_store.start_team}부터 시작합니다.`;
+                    help_text += `※ ${othello_store.start_team}부터 시작합니다.\n\n`;
                 case StartTeam.RANDOM:
-                    return '※ 랜덤으로 시작 팀을 정합니다.';
+                    help_text += '※ 랜덤으로 시작 팀을 정합니다.\n\n';
             }
+            help_text += '※ 시청자는 채팅으로 참여할 수 있습니다.\n예시) D3, e6 처럼 대소문자 구분없이 붙여 씁니다.';
+            return help_text;
         }
         const help_text = this.addText({ value: make_help_text() });
 
-        const start_button = this.scene.add.text(this.panel_x_offset + this.panel_width/2, this.panel_y_offset + this.panel_height/2, '드가자!', {
+        const start_button = this.scene.add.text(this.panel_x_offset + this.panel_width/2, this.panel_y_offset + this.panel_height*3/4, '드가자!', {
             ...store.style.font_style,
             fontSize: store.style.font_style.fontSize as number * 2,
             color: store.style.color_code.green_a,
