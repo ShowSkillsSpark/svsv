@@ -1,7 +1,7 @@
 import { Scene } from "phaser";
 import { LoginScene } from "./LoginScene";
 import { CommonStoreEvent, store } from "../../Store/CommonStore";
-import { VolumeScene } from "./VolumeScene";
+import { SidebarScene } from "./SidebarScene";
 
 export class BootScene extends Scene {
     static readonly key = 'BootScene';
@@ -30,7 +30,7 @@ export class BootScene extends Scene {
         store.on(CommonStoreEvent.VOLUME_MASTER, (value: number) => {
             this.sound.setVolume(value);
         });
-        this.scene.launch(VolumeScene.key);
+        this.scene.launch(SidebarScene.key);
         this.scene.start(LoginScene.key);
     }
 }

@@ -496,25 +496,28 @@ export class OthelloSettingScene extends Scene {
         store.bgm = store.bgm_map['bgm:login:intro'];
         othello_store.clearMemberShip();
 
-        const team1_panel = new TeamSettingPanel(this, TeamTag.TEAM1, 0.5, MemberShip.TEAM1);
-        const team2_panel = new TeamSettingPanel(this, TeamTag.TEAM2, 1.5, MemberShip.TEAM2);
-        const member_panel = new MemberSettingPanel(this, 2.75);
+        const team1_panel = new TeamSettingPanel(this, TeamTag.TEAM1, 0, MemberShip.TEAM1);
+        const team2_panel = new TeamSettingPanel(this, TeamTag.TEAM2, 1, MemberShip.TEAM2);
+        const member_panel = new MemberSettingPanel(this, 2.5);
         const game_panel = new GameSettingPanel(this, 4, this.startGameScene);
 
-        const back_button_x_offset = store.HEIGHT/10;
-        const back_button_y_offset = store.HEIGHT/10;
-        const back_text = this.add.text(back_button_x_offset, back_button_y_offset, '뒤로', {
-                    ...store.style.font_style,
-                    color: store.style.color_code.pink_a,
-                }).setOrigin(0, 0.5)
-                .setInteractive().on('pointerup', () => {
-                    this.sound.play('Common:sound:exit', { volume: store.volume_effect });
-                    this.scene.start(SelectGameScene.key);
-                }).on('pointerover', () => {
-                    back_text.setColor(store.style.color_code.pink_f);
-                }).on('pointerout', () => {
-                    back_text.setColor(store.style.color_code.pink_a);
-                });
+        const back_button_x_offset = 0;
+        const back_button_y_offset = store.HEIGHT/20;
+        const back_text = this.add.text(back_button_x_offset, back_button_y_offset, '뒤\n로', {
+            ...store.style.font_style,
+            color: store.style.color_code.pink_a,
+            backgroundColor: store.style.color_code.grey_0,
+        }).setOrigin(0.5, 0)
+        .setInteractive().on('pointerup', () => {
+            this.sound.play('Common:sound:exit', { volume: store.volume_effect });
+            this.scene.start(SelectGameScene.key);
+        }).on('pointerover', () => {
+            back_text.setColor(store.style.color_code.pink_f);
+            back_text.setOrigin(0, 0);
+        }).on('pointerout', () => {
+            back_text.setColor(store.style.color_code.pink_a);
+            back_text.setOrigin(0.5, 0);
+        });
 
         team1_panel.onselect = () => {
             team2_panel.select = false;

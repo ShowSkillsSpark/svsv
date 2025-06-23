@@ -3,6 +3,7 @@ import { SelectGameScene } from "./SelectGameScene";
 import { OthelloSelectGameButton } from "../Othello/OthelloSelectGameButton";
 import { OthelloGameScene } from "../Othello";
 import { store } from "../../Store/CommonStore";
+import { version } from "../../../package.json"
 
 export class PreloadScene extends Scene {
     static readonly key = 'PreloadScene';
@@ -28,6 +29,11 @@ export class PreloadScene extends Scene {
         this.load.audio('bgm:defeat2:intro', 'xDeviruchi - 16 bit Fantasy & Adventure (2025)/10 - Lost Shrine.mp3');
     }
     create() {
+        // version
+        const version_text = this.add.text(0, store.HEIGHT, version, {
+            ...store.style.font_style,
+        }).setOrigin(0, 1);
+
         OthelloSelectGameButton.preload(this);
         OthelloGameScene.preload(this);
         for (const key of ['battle1', 'battle2', 'battle3']) {

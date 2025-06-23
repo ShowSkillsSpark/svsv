@@ -23,13 +23,12 @@ export class LoginScene extends Scene {
         store.bgm_map['bgm:login:intro'] = bgm;
         store.bgm = store.bgm_map['bgm:login:intro'];
 
-
         // version
         const version_text = this.add.text(0, store.HEIGHT, version, {
             ...store.style.font_style,
         }).setOrigin(0, 1);
 
-        if (store.DEBUG) { this.scene.start(PreloadScene.key); return; } // NOTE: skip acquiring permission process
+        // if (store.DEBUG) { this.scene.start(PreloadScene.key); return; } // NOTE: skip acquiring permission process
 
         const proxy = store.proxy;
         const info_text = this.add.text(store.WIDTH/2, store.HEIGHT*1/2, '', store.style.font_style).setOrigin(0.5).setPadding(store.style.font_padding);

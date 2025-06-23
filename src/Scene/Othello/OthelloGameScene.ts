@@ -234,6 +234,7 @@ export class OthelloGameScene extends Scene {
     prev_pass = false;
 
     back_text!: GameObjects.Text;
+    is_end = false;
 
     constructor() {
         super(OthelloGameScene.key);
@@ -252,20 +253,24 @@ export class OthelloGameScene extends Scene {
         }).setOrigin(0.5, 0);
 
         // 뒤로 버튼
-        const back_button_x_offset = store.HEIGHT/10;
-        const back_button_y_offset = store.HEIGHT/10;
-        this.back_text = this.add.text(back_button_x_offset, back_button_y_offset, '뒤로', {
-                    ...store.style.font_style,
-                    color: store.style.color_code.pink_a,
-                }).setOrigin(0, 0.5)
-                .setInteractive().on('pointerup', () => {
-                    this.sound.play('Common:sound:exit', { volume: store.volume_effect });
-                    this.scene.start(OthelloSettingScene.key);
-                }).on('pointerover', () => {
-                    this.back_text.setColor(store.style.color_code.pink_f);
-                }).on('pointerout', () => {
-                    this.back_text.setColor(store.style.color_code.pink_a);
-                });
+        const back_button_x_offset = 0;
+        const back_button_y_offset = store.HEIGHT/20;
+        this.back_text = this.add.text(back_button_x_offset, back_button_y_offset, '종\n료', {
+            ...store.style.font_style,
+            color: store.style.color_code.pink_a,
+        }).setOrigin(0.5, 0)
+        .setInteractive().on('pointerup', () => {
+            this.sound.play('Common:sound:exit', { volume: store.volume_effect });
+            this.scene.start(OthelloSettingScene.key);
+        }).on('pointerover', () => {
+            this.back_text.setColor(store.style.color_code.pink_f);
+            this.back_text.setOrigin(0, 0);
+        }).on('pointerout', () => {
+            if (!this.is_end) {
+                this.back_text.setColor(store.style.color_code.pink_a);
+                this.back_text.setOrigin(0.5, 0);
+            }
+        });
 
         // 게임판
         const tile_width = 32 * scale;
@@ -532,6 +537,8 @@ export class OthelloGameScene extends Scene {
         this.team_panels[TeamTag.TEAM1].endGame();
         this.team_panels[TeamTag.TEAM2].endGame();
 
+        this.is_end = true;
         this.back_text.setColor(store.style.color_code.pink_f);
+        this.back_text.setOrigin(0, 0);
     }
 }

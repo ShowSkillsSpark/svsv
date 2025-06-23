@@ -2,7 +2,7 @@ import { AUTO, Game, Scale, Types } from "phaser";
 import { store } from "./Store/CommonStore";
 import { BootScene, LoginScene, PreloadScene, SelectGameScene } from "./Scene/Common";
 import { OthelloGameScene, OthelloSettingScene } from "./Scene/Othello";
-import { VolumeScene } from "./Scene/Common/VolumeScene";
+import { SidebarScene } from "./Scene/Common/SidebarScene";
 
 const config: Types.Core.GameConfig = {
     type: AUTO,
@@ -28,7 +28,7 @@ const config: Types.Core.GameConfig = {
         OthelloSettingScene,
         OthelloGameScene,
 
-        VolumeScene,
+        SidebarScene,
     ],
 };
 
