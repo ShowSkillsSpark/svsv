@@ -126,8 +126,8 @@ class GameBoard {
     constructor(parent: OthelloStore) {
         this.parent = parent;
 
-        this.width_index = parseInt(localStorage.getItem(`OthelloStore:game_board:width_index`) || '0');
-        this.height_index = parseInt(localStorage.getItem(`OthelloStore:game_board:height_index`) || '0');
+        this.width_index = parseInt(localStorage.getItem(`svsv:othello:game_board:width_index`) || '0');
+        this.height_index = parseInt(localStorage.getItem(`svsv:othello:game_board:height_index`) || '0');
 
         this.counter = {
             [TeamTag.TEAM1]: 0,
@@ -244,52 +244,50 @@ class OthelloStore extends Store {
         super();
         this.teams = {} as { [team_tag in TeamTag]: TeamConfig };
         this.teams[TeamTag.TEAM1] = new TeamConfig({
-            name: localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM1}:name`) || MemberShip.TEAM1,
-            timeout_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM1}:timeout_index`) || '0'),
-            // timeout_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM1}:timeout_index`) || '0'),
-            disk_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM1}:disk_index`) || '0'),
-            put_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM1}:put_index`) || '0'),
+            name: localStorage.getItem(`svsv:othello:teams:${TeamTag.TEAM1}:name`) || MemberShip.TEAM1,
+            timeout_index: parseInt(localStorage.getItem(`svsv:othello:teams:${TeamTag.TEAM1}:timeout_index`) || '0'),
+            disk_index: parseInt(localStorage.getItem(`svsv:othello:teams:${TeamTag.TEAM1}:disk_index`) || '0'),
+            put_index: parseInt(localStorage.getItem(`svsv:othello:teams:${TeamTag.TEAM1}:put_index`) || '0'),
         });
         this.teams[TeamTag.TEAM2] = new TeamConfig({
-            name: localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:name`) || MemberShip.TEAM2,
-            timeout_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:timeout_index`) || '2'),
-            // timeout_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:timeout_index`) || '0'),
-            disk_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:disk_index`) || '1'),
-            put_index: parseInt(localStorage.getItem(`OthelloStore:teams:${TeamTag.TEAM2}:put_index`) || '1'),
+            name: localStorage.getItem(`svsv:othello:teams:${TeamTag.TEAM2}:name`) || MemberShip.TEAM2,
+            timeout_index: parseInt(localStorage.getItem(`svsv:othello:teams:${TeamTag.TEAM2}:timeout_index`) || '2'),
+            disk_index: parseInt(localStorage.getItem(`svsv:othello:teams:${TeamTag.TEAM2}:disk_index`) || '1'),
+            put_index: parseInt(localStorage.getItem(`svsv:othello:teams:${TeamTag.TEAM2}:put_index`) || '1'),
         });
 
         this._members = {};
 
-        this.default_membership_index = parseInt(localStorage.getItem(`OthelloStore:default_membership_index`) || '1');
+        this.default_membership_index = parseInt(localStorage.getItem(`svsv:othello:default_membership_index`) || '1');
 
-        this.start_team_index = parseInt(localStorage.getItem(`OthelloStore:start_team_index`) || '2');
+        this.start_team_index = parseInt(localStorage.getItem(`svsv:othello:start_team_index`) || '2');
 
         this.game_board = new GameBoard(this);
     }
 
     nextTeamTimeout(team_tag: TeamTag, diff: integer) {
         this.teams[team_tag].nextTimeout(diff);
-        localStorage.setItem(`OthelloStore:teams:${team_tag}:timeout_index`, this.teams[team_tag].timeout_index.toString());
+        localStorage.setItem(`svsv:othello:teams:${team_tag}:timeout_index`, this.teams[team_tag].timeout_index.toString());
         this.emit('teams:timeout', team_tag, this.teams[team_tag].timeout);
     }
     nextTeamDisk(team_tag: TeamTag, diff: integer) {
         this.teams[team_tag].nextDisk(diff);
-        localStorage.setItem(`OthelloStore:teams:${team_tag}:disk_index`, this.teams[team_tag].disk_color_index.toString());
+        localStorage.setItem(`svsv:othello:teams:${team_tag}:disk_index`, this.teams[team_tag].disk_color_index.toString());
         this.emit('teams:disk', team_tag, this.teams[team_tag].disk_color);
     }
     nextTeamPut(team_tag: TeamTag, diff: integer) {
         this.teams[team_tag].nextPut(diff);
-        localStorage.setItem(`OthelloStore:teams:${team_tag}:put_index`, this.teams[team_tag].put_index.toString());
+        localStorage.setItem(`svsv:othello:teams:${team_tag}:put_index`, this.teams[team_tag].put_index.toString());
         this.emit('teams:put', team_tag, this.teams[team_tag].put);
     }
     nextDefaultMembership(diff: integer) {
         this.default_membership_index = (this.default_membership_index + this.default_membership_list.length + diff) % this.default_membership_list.length;
-        localStorage.setItem(`OthelloStore:default_membership_index`, this.default_membership_index.toString());
+        localStorage.setItem(`svsv:othello:default_membership_index`, this.default_membership_index.toString());
         this.emit('default_membership', this.default_membership);
     }
     nextStartTeam(diff: integer) {
         this.start_team_index = (this.start_team_index + this.start_team_list.length + diff) % this.start_team_list.length;
-        localStorage.setItem(`OthelloStore:start_team_index`, this.start_team_index.toString());
+        localStorage.setItem(`svsv:othello:start_team_index`, this.start_team_index.toString());
         this.emit('start_team', this.start_team);
     }
     setMemberShip(channel_id: string, membership?: MemberShip) {

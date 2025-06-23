@@ -15,16 +15,6 @@ export class PreloadScene extends Scene {
         this.load.spritesheet('Common:button_header', 'assets/Common/button_header.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('Common:button_close', 'assets/Common/button_close.png', { frameWidth: 32, frameHeight: 32 });
         this.load.setPath('assets/Common/');
-        this.load.audio('Common:sound:cancel', 'SoupTonic UI1 SFX Pack 1 - mp3/SFX_UI_Cancel.mp3');
-        this.load.audio('Common:sound:confirm', 'SoupTonic UI1 SFX Pack 1 - mp3/SFX_UI_Confirm.mp3');
-        this.load.audio('Common:sound:select', 'SoupTonic UI1 SFX Pack 1 - mp3/SFX_UI_MenuSelections.mp3');
-        this.load.audio('Common:sound:open_menu', 'SoupTonic UI1 SFX Pack 1 - mp3/SFX_UI_OpenMenu.mp3');
-        this.load.audio('Common:sound:close_menu', 'SoupTonic UI1 SFX Pack 1 - mp3/SFX_UI_CloseMenu.mp3');
-        this.load.audio('Common:sound:exit', 'SoupTonic UI1 SFX Pack 1 - mp3/SFX_UI_Exit.mp3');
-        this.load.audio('Common:sound:pause', 'SoupTonic UI1 SFX Pack 1 - mp3/SFX_UI_Pause.mp3');
-        this.load.audio('Common:sound:resume', 'SoupTonic UI1 SFX Pack 1 - mp3/SFX_UI_Resume.mp3');
-        this.load.audio('Common:sound:shop', 'SoupTonic UI1 SFX Pack 1 - mp3/SFX_UI_Shop.mp3');
-        this.load.audio('Common:sound:equip', 'SoupTonic UI1 SFX Pack 1 - mp3/SFX_UI_Equip.mp3');
         this.load.audio('bgm:battle1:intro', 'xDeviruchi - 8-bit Fantasy  & Adventure Music (2021)/Separated Files/And The Journey Begins/xDeviruchi - And The Journey Begins (Intro).wav');
         this.load.audio('bgm:battle1', 'xDeviruchi - 8-bit Fantasy  & Adventure Music (2021)/Separated Files/And The Journey Begins/xDeviruchi - And The Journey Begins (Loop).wav');
         this.load.audio('bgm:battle2:intro', 'xDeviruchi - 8-bit Fantasy  & Adventure Music (2021)/Separated Files/Exploring The Unknown/xDeviruchi - Exploring The Unknown (Intro).wav');

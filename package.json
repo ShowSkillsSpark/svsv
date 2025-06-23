@@ -1,6 +1,6 @@
 {
   "name": "svsv",
-  "version": "2025.06.23.1234",
+  "version": "2025.06.23.1400",
   "description": "치지직 시청자 참여형 미니게임",
   "keywords": [
     "chzzk",
@@ -8,8 +8,8 @@
     "시청자참여"
   ],
   "scripts": {
-    "dev": "vite --host",
-    "build": "vite build",
+    "dev": "vite --host --mode development",
+    "build": "vite build --mode production",
     "deploy": "gh-pages -d dist"
   },
   "repository": {

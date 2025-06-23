@@ -29,7 +29,7 @@ export class LoginScene extends Scene {
             ...store.style.font_style,
         }).setOrigin(0, 1);
 
-        // if (store.DEBUG) { this.scene.start(PreloadScene.key); return; } // NOTE: skip acquiring permission process
+        if (store.DEBUG) { this.scene.start(PreloadScene.key); return; } // NOTE: skip acquiring permission process
 
         const proxy = store.proxy;
         const info_text = this.add.text(store.WIDTH/2, store.HEIGHT*1/2, '', store.style.font_style).setOrigin(0.5).setPadding(store.style.font_padding);
@@ -52,18 +52,18 @@ export class LoginScene extends Scene {
                     const redirect_uri = store.url;
                     const state = 'skills';
                     const interlock_url = `https://chzzk.naver.com/account-interlock?clientId=${client_id}&redirectUri=${redirect_uri}&state=${state}`;
-                    sessionStorage.setItem('CommonStore:proxy:client_id',  client_id);
-                    sessionStorage.setItem('CommonStore:proxy:redirect_uri',  redirect_uri);
+                    sessionStorage.setItem('svsv:proxy:client_id',  client_id);
+                    sessionStorage.setItem('svsv:proxy:redirect_uri',  redirect_uri);
                     this.sound.play('confirm', { volume: store.volume_effect });
                     window.open(interlock_url, '_self');
                 });
             } else {
                 proxy.createAccessToken().then(() => {
-                    sessionStorage.setItem('CommonStore:proxy:access_token', proxy.access_token);
-                    sessionStorage.setItem('CommonStore:proxy:refresh_token', proxy.refresh_token);
-                    sessionStorage.setItem('CommonStore:proxy:token_type', proxy.token_type);
-                    sessionStorage.setItem('CommonStore:proxy:expires_in', proxy.expires_in.toString());
-                    sessionStorage.setItem('CommonStore:proxy:scope', proxy.scope);
+                    sessionStorage.setItem('svsv:proxy:access_token', proxy.access_token);
+                    sessionStorage.setItem('svsv:proxy:refresh_token', proxy.refresh_token);
+                    sessionStorage.setItem('svsv:proxy:token_type', proxy.token_type);
+                    sessionStorage.setItem('svsv:proxy:expires_in', proxy.expires_in.toString());
+                    sessionStorage.setItem('svsv:proxy:scope', proxy.scope);
                     window.open(store.url, '_self');
                 }).catch(() => {
                     this.clearSession();
@@ -111,12 +111,12 @@ export class LoginScene extends Scene {
     }
 
     clearSession() {
-        sessionStorage.getItem('CommonStore:proxy:code');
-        sessionStorage.getItem('CommonStore:proxy:state');
-        sessionStorage.getItem('CommonStore:proxy:access_token');
-        sessionStorage.getItem('CommonStore:proxy:refresh_token');
-        sessionStorage.getItem('CommonStore:proxy:token_type');
-        sessionStorage.getItem('CommonStore:proxy:expires_in');
-        sessionStorage.getItem('CommonStore:proxy:scope');
+        sessionStorage.getItem('svsv:proxy:code');
+        sessionStorage.getItem('svsv:proxy:state');
+        sessionStorage.getItem('svsv:proxy:access_token');
+        sessionStorage.getItem('svsv:proxy:refresh_token');
+        sessionStorage.getItem('svsv:proxy:token_type');
+        sessionStorage.getItem('svsv:proxy:expires_in');
+        sessionStorage.getItem('svsv:proxy:scope');
     }
 }
