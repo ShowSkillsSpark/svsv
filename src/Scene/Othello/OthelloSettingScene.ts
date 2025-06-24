@@ -520,8 +520,10 @@ class GameSettingPanel extends SettingPanel {
                 case StartTeam.TEAM1:
                 case StartTeam.TEAM2:
                     help_text += `※ ${othello_store.start_team}부터 시작합니다.\n\n`;
+                    break;
                 case StartTeam.RANDOM:
                     help_text += '※ 랜덤으로 시작 팀을 정합니다.\n\n';
+                    break;
             }
             help_text += "※ 시청자는 채팅으로 참여할 수 있습니다.\n※ 영어+숫자로 시작되는 채팅을 입력합니다\n예시) 'D3', 'e6에 한 표!'";
             return help_text;
