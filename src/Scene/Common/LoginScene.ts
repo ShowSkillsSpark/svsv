@@ -36,7 +36,7 @@ export class LoginScene extends Scene {
         const button = this.add.text(store.WIDTH/2, store.HEIGHT*2/3, '', store.style.font_style).setOrigin(0.5).setPadding(store.style.font_padding).setTint(store.style.color.green_a);
         if (proxy.access_token || proxy.code) {
             proxy.connect().then(() => {
-                window.history.replaceState({}, '', '/');
+                window.history.replaceState({}, '', (import.meta.env.MODE === 'development') ? '/' : '/svsv/');
                 sessionStorage.setItem('svsv:proxy:access_token', proxy.access_token);
                 sessionStorage.setItem('svsv:proxy:refresh_token', proxy.refresh_token);
                 sessionStorage.setItem('svsv:proxy:token_type', proxy.token_type);
