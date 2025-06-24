@@ -97,7 +97,7 @@ class TeamPanel extends GameObjects.Container {
             ...store.style.font_style,
             fontSize: font_size*2/3,
             color: store.style.color_code.pink_a,
-        }).setOrigin(0, 0.2).setInteractive().on('pointerup', () => {
+        }).setOrigin(0, 0.2).disableInteractive().on('pointerup', () => {
             this.timer_event.repeatCount = 0;
             this.scene.sound.play('Common:sound:select', { volume: store.volume_effect });
         }).on('pointerover', () => {
@@ -178,11 +178,13 @@ class TeamPanel extends GameObjects.Container {
                 }
             }
         });
+        this.pass_text.setInteractive();
         this.clearChat();
     }
     onendturn() {
         this.timer_event.paused = true;
         this.cover.visible = true;
+        this.pass_text.disableInteractive();
     }
     clearChat() {
         this.chat_nickname_list.forEach(text => text.setText('').setVisible(false));

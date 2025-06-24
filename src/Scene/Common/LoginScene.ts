@@ -5,8 +5,23 @@ import { version } from "../../../package.json"
 
 export class LoginScene extends Scene {
     static readonly key = 'LoginScene';
+
+    login_text?: Phaser.GameObjects.Text;
+
     constructor() {
         super(LoginScene.key);
+    }
+
+    init() {
+        // version
+        const version_text = this.add.text(0, store.HEIGHT, version, {
+            ...store.style.font_style,
+        }).setOrigin(0, 1);
+
+        // loading text
+        this.login_text = this.add.text(store.WIDTH/2, store.HEIGHT/2, 'Loading...', {
+            ...store.style.font_style,
+        }).setOrigin(0.5);
     }
 
     preload() {
@@ -17,10 +32,6 @@ export class LoginScene extends Scene {
     }
 
     async create() {
-        // version
-        const version_text = this.add.text(0, store.HEIGHT, version, {
-            ...store.style.font_style,
-        }).setOrigin(0, 1);
 
         const bgm = this.sound.add('bgm:login:intro', { volume: store.volume_bgm });
         bgm.on('complete', () => {
@@ -46,6 +57,7 @@ export class LoginScene extends Scene {
             }).catch(() => {
                 this.clearSession();
                 window.history.replaceState({}, '', '/');
+                this.login_text?.setVisible(false);
                 info_text.setText('[에러] 서비스 연결에 실패했습니다.\n\n잠시 후 재시도합니다.\n문제가 반복되면 새 탭에서 열어주세요.\n');
                 let repeat = 60;
                 button.setText(`${repeat}초`);
@@ -60,6 +72,7 @@ export class LoginScene extends Scene {
                 });
             });
         } else {
+            this.login_text?.setVisible(false);
             info_text.setText(
 `[안내] 치지직 API 사용 권한이 필요합니다.
 
