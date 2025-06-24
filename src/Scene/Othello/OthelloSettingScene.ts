@@ -440,27 +440,21 @@ class TeamSettingPanel extends SettingPanel {
             return help_text;
         }
         const help_text = this.addText({ value: make_help_text() });
-        othello_store.on('teams:timeout', () => {
-            help_text.setText(make_help_text());
-        });
-        othello_store.on('teams:disk', () => {
-            help_text.setText(make_help_text());
-        });
-        othello_store.on('teams:put', () => {
-            help_text.setText(make_help_text());
-        });
 
         const on_timeout = (tt: TeamTag, timeout: Timeout) => {
             if (team_tag === tt) {
                 const remain_time = (timeout < 0) ? '무제한' : `${timeout} 초`;
                 timeout_value_text.setValueText(remain_time);
             }
+            help_text.setText(make_help_text());
         };
         const on_disk = (tt: TeamTag, disk_color: DiskColor) => {
             if (team_tag === tt) disk_color_value_text.setValueText(disk_color);
+            help_text.setText(make_help_text());
         };
         const on_put = (tt: TeamTag, put: PutType) => {
             if (team_tag === tt) put_value_text.setValueText(put);
+            help_text.setText(make_help_text());
         };
         othello_store.on('teams:timeout', on_timeout);
         othello_store.on('teams:disk', on_disk);
