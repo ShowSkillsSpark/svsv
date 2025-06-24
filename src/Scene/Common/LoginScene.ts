@@ -66,7 +66,7 @@ export class LoginScene extends Scene {
 아래 버튼을 눌러 동의해주세요.
 `);
             button.setText('오케이!');
-            button.setInteractive({ cursor: 'pointer' }).on('pointerover', () => {
+            button.setInteractive().on('pointerover', () => {
                 button.setTint(store.style.color.green_f);
                 this.sound.play('select', { volume: store.volume_effect });
             }).on('pointerout', () => {

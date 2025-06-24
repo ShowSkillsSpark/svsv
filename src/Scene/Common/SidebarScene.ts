@@ -189,7 +189,7 @@ class CreditPanel extends Panel {
         const logo = this.scene.add.image(x, y, key).setOrigin(0.5);
         const logo_height = store.style.font_style.fontSize as number;
         const scale = logo_height/logo.height;
-        logo.setScale(scale).setInteractive({cursor: 'pointer'}).on('pointerup', () => {
+        logo.setScale(scale).setInteractive().on('pointerup', () => {
             window.open(url, '_blank');
         });
         this.add([logo]);

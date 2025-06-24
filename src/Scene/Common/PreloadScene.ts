@@ -26,7 +26,6 @@ export class PreloadScene extends Scene {
     preload() {
         this.load.spritesheet('Othello:assets', 'assets/Games/Othello/Othello.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('Common:button_header', 'assets/Common/button_header.png', { frameWidth: 32, frameHeight: 32 });
-        this.load.spritesheet('Common:button_close', 'assets/Common/button_close.png', { frameWidth: 32, frameHeight: 32 });
         this.load.setPath('assets/Common/');
         this.load.audio('bgm:battle1:intro', 'xDeviruchi - 8-bit Fantasy  & Adventure Music (2021)/Separated Files/And The Journey Begins/xDeviruchi - And The Journey Begins (Intro).wav');
         this.load.audio('bgm:battle1', 'xDeviruchi - 8-bit Fantasy  & Adventure Music (2021)/Separated Files/And The Journey Begins/xDeviruchi - And The Journey Begins (Loop).wav');
