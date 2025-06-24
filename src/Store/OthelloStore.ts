@@ -26,6 +26,7 @@ export enum PutType {
     CLICK = '클릭',
     MOST = '최다 득표',
     PROPORTIONAL = '득표 비례 확률',
+    FIRST = '선착순',
 }
 
 export enum MemberShip {
@@ -59,7 +60,7 @@ class TeamConfig {
     disk_color_index: integer;
     get disk_color() { return this.disk_color_list[this.disk_color_index]; }
 
-    put_list = [PutType.CLICK, PutType.MOST, PutType.PROPORTIONAL];
+    put_list = [PutType.CLICK, PutType.MOST, PutType.PROPORTIONAL, PutType.FIRST];
     put_index: integer;
     get put() { return this.put_list[this.put_index]; }
 

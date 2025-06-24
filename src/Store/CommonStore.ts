@@ -125,9 +125,9 @@ class CommonStore extends Store {
             align: 'center',
         };
         this.style.font_padding = font_size * this.SCALE / 10;
-        this.url = this.DEBUG ? 'http://localhost:5173' : 'https://showskillsspark.github.io/svsv';
+        this.url = this.DEBUG ? import.meta.env.VITE_TEST_REDIRECT_URL : 'https://showskillsspark.github.io/svsv';
         this.proxy = new ChzzkProxy({
-            api_url: this.DEBUG ? 'https://pyrsgagtq5.execute-api.ap-northeast-2.amazonaws.com/default/chzzkProxyTest' : 'https://uohwcn08lb.execute-api.ap-northeast-2.amazonaws.com/default/chzzkProxy',
+            api_url: this.DEBUG ? import.meta.env.VITE_TEST_PROXY_URL : 'https://uohwcn08lb.execute-api.ap-northeast-2.amazonaws.com/default/chzzkProxy',
             code: sessionStorage.getItem('svsv:proxy:code') || (new URL(window.location.href)).searchParams.get('code') || undefined,
             state: sessionStorage.getItem('svsv:proxy:state') || (new URL(window.location.href)).searchParams.get('state') || undefined,
             access_token: sessionStorage.getItem('svsv:proxy:access_token') || undefined,

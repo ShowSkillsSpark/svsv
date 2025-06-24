@@ -194,9 +194,6 @@ class TeamPanel extends GameObjects.Container {
         this.chat_flag.add(channel_id);
         const [pos_x, pos_y] = coord_to_position(x, y);
         const position = pos_x + pos_y;
-        if (!this.vote[position]) this.vote[position] = 1;
-        else this.vote[position] += 1;
-        vote_text.setText(`${this.vote[position]}`).setVisible(true);
         this.chat_nickname_list.forEach((text, i) => {
             if (i === this.chat_nickname_list.length - 1) text.setText(nickname).setCrop(0, 0, this.chat_nickname_width, this.chat_font_size).setVisible(true);
             else text.setText(this.chat_nickname_list[i+1].text).setCrop(0, 0, this.chat_nickname_width, this.chat_font_size).setVisible(true);
@@ -205,6 +202,9 @@ class TeamPanel extends GameObjects.Container {
             if (i === this.chat_position_list.length - 1) text.setText(position).setVisible(true);
             else text.setText(this.chat_position_list[i+1].text).setVisible(true);
         });
+        if (!this.vote[position]) this.vote[position] = 1;
+        else this.vote[position] += 1;
+        vote_text.setText(`${this.vote[position]}`).setVisible(true);
     }
     endGame() {
         this.timer_event.paused = true;
@@ -416,8 +416,13 @@ export class OthelloGameScene extends Scene {
             const team_tag = membership_to_team(membership);
             if (team_tag === undefined) return;
             if (this.curr_turn !== team_tag) return;
-            for (const disk of this.team_panels[team_tag].disk_set) {
-                if (disk.x === x && disk.y === y) this.team_panels[team_tag].addChat(channel_id, nickname, x, y, this.votes[x][y]);
+            const disk_set = this.team_panels[team_tag].disk_set
+            for (const disk of disk_set) {
+                if (disk.x === x && disk.y === y) {
+                    this.team_panels[team_tag].addChat(channel_id, nickname, x, y, this.votes[x][y]);
+                    if (othello_store.teams[team_tag].put === PutType.FIRST) this.putDisk(team_tag, disk_set, this.team_panels[team_tag].vote);
+                    break;
+                }
             }
         };
         store.on(CommonStoreEvent.CHAT, vote);
@@ -446,8 +451,9 @@ export class OthelloGameScene extends Scene {
     }
 
     putDisk(team_tag: TeamTag, disk_set: Set<Disk>, vote: { [position: string]: number }) {
+        const put_type = othello_store.teams[team_tag].put;
         let did_put = false;
-        if (othello_store.teams[team_tag].put === PutType.MOST && Object.keys(vote).length > 0) {
+        if (put_type === PutType.MOST || put_type === PutType.FIRST && Object.keys(vote).length > 0) {
             let most_count = 0;
             let most_position = '';
             for (const position in vote) {
@@ -461,7 +467,7 @@ export class OthelloGameScene extends Scene {
             }
             const [x, y] = position_to_coord(most_position);
             did_put = othello_store.game_board.putDisk(x, y, team_tag, othello_store.teams[team_tag].disk_color);
-        } else if (othello_store.teams[team_tag].put === PutType.PROPORTIONAL && Object.keys(vote).length > 0) {
+        } else if (put_type === PutType.PROPORTIONAL && Object.keys(vote).length > 0) {
             const position_list = [];
             for (const position in vote) {
                 for (let i = 0; i < vote[position]; i++) {
@@ -472,8 +478,8 @@ export class OthelloGameScene extends Scene {
             const [x, y] = position_to_coord(random_disk);
             did_put = othello_store.game_board.putDisk(x, y, team_tag, othello_store.teams[team_tag].disk_color);
         }
-        
-        if (othello_store.teams[team_tag].put === PutType.CLICK || Object.keys(vote).length === 0 || !did_put) { // no click nor no vote
+
+        if (put_type === PutType.CLICK || Object.keys(vote).length === 0 || !did_put) { // no click nor no vote
             const random_disk = [...disk_set][Math.floor(Math.random() * disk_set.size)];
             othello_store.game_board.putDisk(random_disk.x, random_disk.y, team_tag, othello_store.teams[team_tag].disk_color);
         }

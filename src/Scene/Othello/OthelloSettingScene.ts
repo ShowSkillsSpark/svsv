@@ -416,21 +416,26 @@ class TeamSettingPanel extends SettingPanel {
                     help_text += '시간 제한 없이 ';
                     break;
                 default:
-                    help_text += `${othello_store.teams[team_tag].timeout} 초가 지나면 `;
+                    const put_type = othello_store.teams[team_tag].put;
+                    help_text += `${othello_store.teams[team_tag].timeout} 초`;
+                    help_text += (put_type === PutType.CLICK || put_type === PutType.FIRST) ? ' 안에 ' : '가 지나면 자동으로 ';
                     break;
             }
-            help_text += `${othello_store.teams[team_tag].disk_color} 말을 `;
             switch (othello_store.teams[team_tag].put) {
                 case PutType.CLICK:
                     help_text += '클릭한 곳에 ';
                     break;
                 case PutType.MOST:
-                    help_text += '가장 많은 표를 받은 곳에 ';
+                    help_text += '가장 많이 투표된 곳에 ';
                     break;
                 case PutType.PROPORTIONAL:
                     help_text += '투표 수에 비례하여 확률적으로 ';
                     break;
+                case PutType.FIRST:
+                    help_text += '가장 먼저 투표된 곳에 ';
+                    break;
             }
+            help_text += `${othello_store.teams[team_tag].disk_color} 말을 `;
             help_text += '놓습니다.';
             return help_text;
         }
@@ -518,7 +523,7 @@ class GameSettingPanel extends SettingPanel {
                 case StartTeam.RANDOM:
                     help_text += '※ 랜덤으로 시작 팀을 정합니다.\n\n';
             }
-            help_text += '※ 시청자는 채팅으로 참여할 수 있습니다.\n예시) D3, e6 처럼 대소문자 구분없이 붙여 씁니다.';
+            help_text += "※ 시청자는 채팅으로 참여할 수 있습니다.\n※ 영어+숫자로 시작되는 채팅을 입력합니다\n예시) 'D3', 'e6에 한 표!'";
             return help_text;
         }
         const help_text = this.addText({ value: make_help_text() });
