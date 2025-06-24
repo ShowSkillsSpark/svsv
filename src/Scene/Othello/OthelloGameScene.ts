@@ -243,6 +243,7 @@ export class OthelloGameScene extends Scene {
     }
 
     create() {
+        this.is_end = false;
         const scale_x = store.WIDTH / (othello_store.game_board.width + 2);
         const scale_y = store.HEIGHT / (othello_store.game_board.height + 2);
         const scale = Math.min(scale_x, scale_y) / 32;
