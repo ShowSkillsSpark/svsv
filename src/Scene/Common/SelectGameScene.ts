@@ -3,6 +3,7 @@ import { store } from "../../Store/CommonStore";
 import { OthelloSelectGameButton } from "../Othello/OthelloSelectGameButton";
 import { SelectGameButton } from "./SelectGameButton";
 import { version } from "../../../package.json"
+import { YachtSelectGameButton } from "../Yacht/YachtSelectGameButton";
 
 export class SelectGameScene extends Scene {
     static readonly key = 'SelectGameScene';
@@ -27,8 +28,8 @@ export class SelectGameScene extends Scene {
         const button_width = store.WIDTH * 0.2;
         const button_height = store.HEIGHT * 0.5;
         const select_game_buttons = [
-            // CreditButton
             OthelloSelectGameButton,
+            // YachtSelectGameButton,
         ].map((game_button: typeof SelectGameButton, index: integer) => {
             return new game_button(this, store.WIDTH*(1/2 + index*3/10), store.HEIGHT/2, button_width, button_height);
         });
@@ -40,7 +41,7 @@ export class SelectGameScene extends Scene {
         const left_zone = this.add.zone(store.WIDTH/2 - zone_horizontal_gap, store.HEIGHT/2, zone_width, zone_height).setOrigin(0.5);
         const center_zone = this.add.zone(store.WIDTH/2, store.HEIGHT/2, zone_width, zone_height).setOrigin(0.5);
         const right_zone = this.add.zone(store.WIDTH/2 + zone_horizontal_gap, store.HEIGHT/2, zone_width, zone_height).setOrigin(0.5);
-        
+
         const onpointerover = (index: integer, center: boolean, focus: boolean) => {
             if (index < 0 || index >= select_game_buttons.length) return;
             select_game_buttons[index].centered = center;

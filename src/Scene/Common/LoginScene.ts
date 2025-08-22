@@ -32,7 +32,6 @@ export class LoginScene extends Scene {
     }
 
     async create() {
-
         const bgm = this.sound.add('bgm:login:intro', { volume: store.volume_bgm });
         bgm.on('complete', () => {
             store.bgm = this.sound.add('bgm:login', { loop: true, volume: store.volume_bgm });

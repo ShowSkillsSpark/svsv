@@ -201,7 +201,7 @@ class GameBoard {
         return flip_disks;
     }
     getFlippingDisk(x: integer, y:integer, dx: integer, dy: integer, team_tag: TeamTag, target_disk_color: DiskColor, first_disk = false): Disk[] {
-        const next_tile = this.tiles[y+dy][x+dx];
+        const next_tile = this.tiles[x+dx][y+dy];
         if (next_tile !== GameBoardTile.EMPTY) return [];
         const curr_disk = first_disk ? [] : [this.disks[x][y]];
         const next_disk = this.disks[x+dx][y+dy];

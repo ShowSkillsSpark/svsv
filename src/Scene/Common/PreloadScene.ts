@@ -4,6 +4,7 @@ import { OthelloSelectGameButton } from "../Othello/OthelloSelectGameButton";
 import { OthelloGameScene } from "../Othello";
 import { store } from "../../Store/CommonStore";
 import { version } from "../../../package.json"
+import { YachtSelectGameButton } from "../Yacht/YachtSelectGameButton";
 
 export class PreloadScene extends Scene {
     static readonly key = 'PreloadScene';
@@ -25,6 +26,7 @@ export class PreloadScene extends Scene {
 
     preload() {
         this.load.spritesheet('Othello:assets', 'assets/Games/Othello/Othello.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('Yacht:assets', 'assets/Games/Yacht/Yacht.png', { frameWidth: 32, frameHeight: 32 });
         this.load.spritesheet('Common:button_header', 'assets/Common/button_header.png', { frameWidth: 32, frameHeight: 32 });
         this.load.setPath('assets/Common/');
         this.load.audio('bgm:battle1:intro', 'xDeviruchi - 8-bit Fantasy  & Adventure Music (2021)/Separated Files/And The Journey Begins/xDeviruchi - And The Journey Begins (Intro).wav');
@@ -40,9 +42,9 @@ export class PreloadScene extends Scene {
         this.load.audio('bgm:defeat2:intro', 'xDeviruchi - 16 bit Fantasy & Adventure (2025)/10 - Lost Shrine.mp3');
     }
     create() {
-
         OthelloSelectGameButton.preload(this);
         OthelloGameScene.preload(this);
+        YachtSelectGameButton.preload(this);
         for (const key of ['battle1', 'battle2', 'battle3']) {
             const bgm = this.sound.add(`bgm:${key}:intro`, { volume: store.volume_bgm });
             bgm.on('complete', () => {

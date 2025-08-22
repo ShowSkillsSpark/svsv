@@ -2,6 +2,7 @@ import { GameObjects, Scene, Time } from "phaser";
 import { DiskColor, OthelloGameEvent, GameBoardTile, othello_store, PutType, TeamTag, StartTeam, MemberShip, Disk } from "../../Store/OthelloStore";
 import { CommonStoreEvent, CommonStoreEventParam, store } from "../../Store/CommonStore";
 import { OthelloSettingScene } from "./OthelloSettingScene";
+import { PassEffectScene } from "../Common/PassEffectScene";
 
 const coord_to_position = (x: number, y: number) => {
     return [`${String.fromCharCode(x + 'A'.charCodeAt(0) - 1)}`, `${y}`];
@@ -233,7 +234,6 @@ export class OthelloGameScene extends Scene {
     team_panels: { [team_tag in TeamTag]: TeamPanel } = {} as { [team_tag in TeamTag]: TeamPanel };
 
     curr_turn: TeamTag = TeamTag.TEAM1;
-    prev_pass = false;
 
     back_text!: GameObjects.Text;
     is_end = false;
@@ -389,14 +389,7 @@ export class OthelloGameScene extends Scene {
                 this.disks[x][y].anims.play(`${prev_disk_color}-${disk_color}`);
             }
         };
-        const on_put = (x: number, y: number) => {
-            if (
-                (this.curr_turn === TeamTag.TEAM1 &&  othello_store.members[store.proxy.channel_id] === MemberShip.TEAM1) ||
-                (this.curr_turn === TeamTag.TEAM2 &&  othello_store.members[store.proxy.channel_id] === MemberShip.TEAM2)
-            ) {
-                const [pos_x, pos_y] = coord_to_position(x, y);
-                store.proxy.message = pos_x + pos_y;
-            }
+        const on_put = () => {
             this.sound.play('Common:sound:open_menu', { volume: store.volume_effect });
             this.nextTurn();
         };
@@ -496,7 +489,6 @@ export class OthelloGameScene extends Scene {
                 this.putDisk(team_tag, disk_set, vote);
             });
             this.curr_turn = team_tag;
-            this.prev_pass = false;
             // show available position
             for (let x = 1; x <= othello_store.game_board.width; x++) {
                 for (let y = 1; y <= othello_store.game_board.height; y++) {
@@ -508,12 +500,23 @@ export class OthelloGameScene extends Scene {
                     this.votes[x][y].setVisible(false);
                 }
             }
-        } else {
-            if (this.prev_pass) {
+        } else { // No moves for current team_tag
+            // Look ahead to see if the other player can move
+            const next_turn_team_tag = (team_tag === TeamTag.TEAM1) ? TeamTag.TEAM2 : TeamTag.TEAM1;
+            const next_disk_color = othello_store.teams[next_turn_team_tag].disk_color;
+            const next_disk_set = othello_store.game_board.canPutDiskSet(next_turn_team_tag, next_disk_color);
+
+            if (next_disk_set.size === 0) {
+                // The other player can't move either, so the game will end.
+                // Don't show the pass effect, just move to the next turn to trigger endGame.
                 this.endGame();
             } else {
-                this.prev_pass = true;
-                this.setTurn(this.curr_turn);
+                // Normal pass, the other player can move. Show the effect.
+                const passScene = this.scene.get(PassEffectScene.key);
+                passScene.events.once('shutdown', () => {
+                    this.setTurn(this.curr_turn);
+                });
+                this.scene.launch(PassEffectScene.key);
             }
         }
     }
